@@ -40,15 +40,38 @@ export class AppController {
         'nav-trending': () => this.handleTabClick('nav-trending', 'trending'),
         'nav-watching': () => this.renderLocalList('nav-watching', this.watchlist, 'Nothing in watchlist'),
         'nav-favorites': () => this.renderLocalList('nav-favorites', this.favorites, 'No favorites yet'),
-        'nav-history': () => this.renderHistoryList()
+        'nav-history': () => this.renderHistoryList(),
+        // Mobile Navigation
+        'mobile-nav-home': () => this.fetchTrending(),
+        'mobile-nav-discover': () => this.handleTabClick('mobile-nav-discover', 'action'),
+        'mobile-nav-library': () => this.renderLocalList('mobile-nav-library', this.watchlist, 'Your watchlist is empty'),
+        'mobile-nav-history': () => this.renderHistoryList()
     };
 
     Object.entries(tabs).forEach(([id, action]) => {
         document.getElementById(id)?.addEventListener('click', () => {
-            this.ui.setActiveTab(id);
-            action();
+            this.handleNavigation(id, action);
         });
     });
+    }
+
+    private handleNavigation(id, action) {
+      this.ui.setActiveTab(id);
+
+      // Update Mobile Nav Active State
+      const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+      mobileNavItems.forEach(item => {
+          if (item.id === id) {
+              item.classList.add('text-accent');
+              item.classList.remove('text-text-dim');
+          } else if (id.startsWith('mobile-nav')) {
+              item.classList.remove('text-accent');
+              item.classList.add('text-text-dim');
+          }
+      });
+
+      action();
+    }
 
     let debounceTimer;
     searchInput?.addEventListener('input', (e) => {

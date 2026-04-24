@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
+@theme {
+  --breakpoint-xs: 480px;
+}
+
 :root {
   --bg: #09090b;
   --sidebar: #0c0c0e;
@@ -25,15 +29,33 @@ body {
 .anime-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.anime-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  border-color: rgba(139, 92, 246, 0.5);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(139, 92, 246, 0.2);
+@media (min-width: 768px) {
+  .anime-card {
+    border-radius: 20px;
+  }
+  .anime-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(139, 92, 246, 0.2);
+  }
+}
+
+.mobile-nav-item {
+  @apply transition-all duration-300 active:scale-90 text-text-dim;
+}
+
+.mobile-nav-item.active {
+  @apply text-accent scale-110;
+}
+
+/* Better touch targets for mobile buttons */
+button, .nav-item, .mobile-nav-item {
+  -webkit-tap-highlight-color: transparent;
 }
 
 .hero-gradient {
