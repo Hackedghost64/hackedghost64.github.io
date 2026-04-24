@@ -466,6 +466,8 @@
             video.controls = false;
             video.autoplay = true;
             video.playsInline = true;
+            video.setAttribute('webkit-airplay', 'allow');
+            video.setAttribute('x-webkit-airplay', 'allow');
             this.videoElement = video;
             this.container.appendChild(video);
 
@@ -786,13 +788,33 @@
 
         triggerCast() {
             if (!this.videoElement) return;
+            const streamUrl = this.currentOptions?.url;
             
             if (this.videoElement.remote && this.videoElement.remote.prompt) {
-                this.videoElement.remote.prompt();
+                this.videoElement.remote.prompt().catch(() => this.handleCastFallback(streamUrl));
             } else if (this.videoElement.webkitShowPlaybackTargetPicker) {
                 this.videoElement.webkitShowPlaybackTargetPicker();
             } else {
-                alert("Screencast/AirPlay not supported in this browser. Try Chrome (Cast) or Safari (AirPlay).");
+                this.handleCastFallback(streamUrl);
+            }
+        }
+
+        handleCastFallback(url) {
+            if (!url) return;
+            
+            if (/Android/i.test(navigator.userAgent)) {
+                // Try Web Video Caster intent (Gold standard for casting on Android)
+                const wvcIntent = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.instantbits.android.precaster;type=video/*;end`;
+                window.location.href = wvcIntent;
+                this.showSkipIndicator('Opening Cast App...', 'center');
+            } else if (navigator.share) {
+                navigator.share({ 
+                    title: 'Stream ' + (document.getElementById('player-title')?.textContent || 'Anime'),
+                    text: 'Open this link in your casting app',
+                    url: url 
+                }).catch(() => {});
+            } else {
+                alert("Screencast not natively supported. Open in VLC and cast from there.");
             }
         }
 
