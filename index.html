@@ -22,13 +22,196 @@
             },
             fontFamily: {
               sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            },
+            screens: {
+                'xs': '480px',
             }
           }
         }
       }
     </script>
-    <!-- External Styles -->
-    <link rel="stylesheet" href="css/style.css" />
+    <style type="text/tailwindcss">
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+      :root {
+        --bg: #09090b;
+        --sidebar: #0c0c0e;
+        --accent: #8b5cf6;
+        --surface: #18181b;
+        --border: #27272a;
+        --text-dim: #a1a1aa;
+      }
+
+      body {
+        background-color: var(--bg);
+        color: #fff;
+        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        overflow-x: hidden;
+      }
+
+      .glass {
+        background: rgba(24, 24, 27, 0.8);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--border);
+      }
+
+      .anime-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @media (min-width: 768px) {
+        .anime-card {
+            border-radius: 20px;
+        }
+        .anime-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(139, 92, 246, 0.2);
+        }
+      }
+
+      .mobile-nav-item {
+        @apply transition-all duration-300 active:scale-90 text-text-dim flex flex-col items-center gap-1;
+      }
+
+      .mobile-nav-item.active {
+        @apply text-accent scale-110;
+      }
+
+      /* Better touch targets for mobile buttons */
+      button, .nav-item, .mobile-nav-item {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .hero-gradient {
+        background: #000;
+        position: relative;
+      }
+
+      #hero-bg {
+        background: linear-gradient(to right, rgba(9, 9, 11, 1) 0%, rgba(9, 9, 11, 0.8) 20%, rgba(9, 9, 11, 0.4) 50%, rgba(9, 9, 11, 0) 100%);
+        z-index: 1;
+      }
+
+      #hero-img {
+        opacity: 0.6;
+        z-index: 0;
+        filter: brightness(0.7) contrast(1.2) saturate(1.1);
+        transition: all 1s ease-in-out;
+      }
+
+      #hero-play {
+        background: var(--accent);
+        color: #fff;
+        font-weight: 800;
+        padding: 1rem 2rem;
+        border-radius: 16px;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.6);
+      }
+
+      #hero-play:hover {
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 0 20px 40px -10px rgba(139, 92, 246, 0.8);
+        filter: brightness(1.1);
+      }
+
+      #hero-description {
+        line-height: 1.6;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      }
+
+      .nav-item {
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+      }
+
+      .nav-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+        transform: translateX(4px);
+      }
+
+      .nav-item.active {
+        background: rgba(139, 92, 246, 0.1);
+        color: #fff;
+        border-left: 4px solid var(--accent);
+        padding-left: calc(1rem - 4px);
+        box-shadow: inset 10px 0 20px -10px rgba(139, 92, 246, 0.2);
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 5px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--accent);
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
+
+      /* Modern Player Seeker & Sliders */
+      input[type="range"].player-slider {
+        -webkit-appearance: none;
+        background: rgba(255, 255, 255, 0.1);
+        height: 4px;
+        border-radius: 2px;
+        outline: none;
+        cursor: pointer;
+      }
+
+      input[type="range"].player-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 12px;
+        height: 12px;
+        background: var(--accent);
+        border-radius: 50%;
+        transition: transform 0.2s;
+      }
+
+      input[type="range"].player-slider:hover::-webkit-slider-thumb {
+        transform: scale(1.3);
+      }
+
+      .player-btn {
+        @apply w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/20 active:scale-95 transition-all border border-white/5 backdrop-blur-md text-white cursor-pointer;
+      }
+
+      .player-btn svg {
+        @apply w-4 h-4 md:w-5 md:h-5;
+      }
+
+      /* Theater Mode Styles */
+      .theater-mode {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        z-index: 150 !important;
+        background: #000 !important;
+      }
+    </style>
   </head>
   <body>
     <div id="root">
@@ -120,19 +303,19 @@
 
           <!-- Bottom Navigation (Mobile Only) -->
           <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-sidebar/80 backdrop-blur-xl border-t border-border px-6 py-3 flex justify-between items-center z-[90]">
-            <button id="mobile-nav-home" class="mobile-nav-item flex flex-col items-center gap-1 text-accent">
+            <button id="mobile-nav-home" class="mobile-nav-item active">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
               <span class="text-[10px] font-bold uppercase tracking-tighter">Home</span>
             </button>
-            <button id="mobile-nav-discover" class="mobile-nav-item flex flex-col items-center gap-1 text-text-dim">
+            <button id="mobile-nav-discover" class="mobile-nav-item">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
               <span class="text-[10px] font-bold uppercase tracking-tighter">Explore</span>
             </button>
-            <button id="mobile-nav-library" class="mobile-nav-item flex flex-col items-center gap-1 text-text-dim">
+            <button id="mobile-nav-library" class="mobile-nav-item">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
               <span class="text-[10px] font-bold uppercase tracking-tighter">Library</span>
             </button>
-            <button id="mobile-nav-history" class="mobile-nav-item flex flex-col items-center gap-1 text-text-dim">
+            <button id="mobile-nav-history" class="mobile-nav-item">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               <span class="text-[10px] font-bold uppercase tracking-tighter">History</span>
             </button>
@@ -166,7 +349,1013 @@
       </div>
     </div>
 
-    <!-- Application Script -->
-    <script type="module" src="js/main.js"></script>
+    <script>
+      // Consolidated Application Logic
+      
+      class AnimeAPI {
+        constructor() {
+          this.baseUrl = 'https://obs-2r2g.vercel.app';
+        }
+
+        async search(query) {
+          try {
+            const response = await fetch(`${this.baseUrl}/search?query=${encodeURIComponent(query)}`);
+            if (!response.ok) throw new Error('Search failed');
+            const data = await response.json();
+            return (data || []).map((item) => ({
+                ...item,
+                name: item.name || 'Unknown Anime'
+            }));
+          } catch (error) {
+            console.error('AnimeAPI Search Error:', error);
+            return [];
+          }
+        }
+
+        async getEpisodes(showId, mode) {
+          try {
+            const response = await fetch(`${this.baseUrl}/episodes?showId=${encodeURIComponent(showId)}&mode=${mode}`);
+            if (!response.ok) throw new Error('Failed to fetch episodes');
+            const data = await response.json();
+            const episodes = Array.isArray(data) ? data : [];
+            return episodes.map((val) => {
+                if (typeof val === 'string') return { number: val };
+                return val;
+            });
+          } catch (error) {
+            console.error('AnimeAPI Episodes Error:', error);
+            return [];
+          }
+        }
+
+        async getLinks(showId, episode, mode) {
+          try {
+            const response = await fetch(`${this.baseUrl}/links?showId=${encodeURIComponent(showId)}&episode=${episode}&mode=${mode}`);
+            if (!response.ok) throw new Error('Failed to fetch streaming links');
+            const data = await response.json();
+            return Array.isArray(data) ? data : data.links || [];
+          } catch (error) {
+            console.error('AnimeAPI Links Error:', error);
+            return [];
+          }
+        }
+
+        getProxyImageUrl(url) {
+          if (!url) return '';
+          return `${this.baseUrl}/image-proxy?url=${encodeURIComponent(url)}`;
+        }
+      }
+
+      class PlayerManager {
+        constructor(containerId) {
+          this.hlsInstance = null;
+          this.videoElement = null;
+          this.controlsOverlay = null;
+          this.autoHideTimer = null;
+          this.currentOptions = null;
+          this.isTheaterMode = false;
+          this.isAutoPlayEnabled = true;
+
+          this.icons = {
+              play: '<svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M5 3l14 9-14 9V3z"/></svg>',
+              pause: '<svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>',
+              next: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="m5 4 10 8-10 8V4Z"/><path d="M19 5v14"/></svg>',
+              prev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="m19 20-10-8 10-8v16Z"/><path d="M5 19V5"/></svg>',
+              pip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><rect width="10" height="7" x="11" y="13" rx="1"/></svg>',
+              fullscreen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="m15 3 6 6M9 21l-6-6M21 3v6h-6M3 21v-6h6"/></svg>',
+              cast: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M2 16.1A5 5 0 0 1 5.9 20M2 12.05A9 9 0 0 1 8.95 21M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"/><path d="M2 20h.01"/></svg>',
+              sub: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M7 8h10"/><path d="M7 12h10"/></svg>',
+              volumeHigh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>',
+              volumeMute: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>',
+              settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+              vlc: '<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z"/></svg>',
+              theater: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect width="20" height="15" x="2" y="4.5" rx="2"/><path d="M2 15h20"/></svg>',
+              skipForward: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M13 19l6-7-6-7"/><path d="M5 19l6-7-6-7"/></svg>'
+          };
+
+          const el = document.getElementById(containerId);
+          if (!el) throw new Error(`[Trace] Container #${containerId} not found`);
+          this.container = el;
+          this.container.classList.add('relative', 'group', 'bg-black', 'overflow-hidden');
+        }
+
+        play(options) {
+            this.currentOptions = options;
+            this.clear();
+            
+            const url = options.url.toLowerCase();
+            const isDirectFile = options.isHls || 
+                               url.includes('.m3u8') || 
+                               url.includes('.mp4') || 
+                               url.includes('video-proxy') || 
+                               url.includes('googlevideo') || 
+                               url.includes('allanime.day');
+
+            if (isDirectFile && !options.isEmbed) {
+                this.mountNativePlayer(options.url, options.isHls);
+                this.injectModernControls(options);
+                this.setupInteractions();
+            } else {
+                this.mountIframe(options.url);
+            }
+        }
+
+        mountNativePlayer(url, isHls) {
+            const video = document.createElement('video');
+            video.className = 'w-full h-full outline-none';
+            video.controls = false;
+            video.autoplay = true;
+            video.playsInline = true;
+            this.videoElement = video;
+            this.container.appendChild(video);
+
+            if (isHls || url.includes('.m3u8')) {
+                if (window.Hls && Hls.isSupported()) {
+                    this.hlsInstance = new Hls({ xhrSetup: (xhr) => { xhr.withCredentials = false; } });
+                    this.hlsInstance.loadSource(url);
+                    this.hlsInstance.attachMedia(video);
+                } else {
+                    video.src = url;
+                }
+            } else {
+                video.src = url;
+            }
+
+            video.onerror = () => this.mountIframe(url);
+        }
+
+        injectModernControls(options) {
+            const overlay = document.createElement('div');
+            overlay.className = 'absolute inset-0 flex flex-col justify-between z-50 bg-gradient-to-t from-black/80 via-transparent to-black/40 opacity-100 transition-opacity duration-300';
+            this.controlsOverlay = overlay;
+
+            const topBar = document.createElement('div');
+            topBar.className = 'p-6 flex justify-between items-start';
+            topBar.innerHTML = `<div class="glass px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-accent animate-pulse"></span> HD STREAM</div>`;
+            
+            const topActions = document.createElement('div');
+            topActions.className = 'flex gap-3';
+            topActions.appendChild(this.createIconButton(this.icons.cast, () => this.triggerCast(), 'Cast'));
+            topBar.appendChild(topActions);
+
+            const centerGroup = document.createElement('div');
+            centerGroup.className = 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none';
+            const centerIcon = document.createElement('div');
+            centerIcon.className = 'w-20 h-20 rounded-full bg-accent/20 backdrop-blur-md flex items-center justify-center opacity-0 scale-50 transition-all duration-300';
+            centerIcon.id = 'center-play-indicator';
+            centerGroup.appendChild(centerIcon);
+
+            const bottomBar = document.createElement('div');
+            bottomBar.className = 'p-2 md:p-6 flex flex-col gap-2 md:gap-4';
+
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'relative w-full h-1.5 group/seeker cursor-pointer';
+            const progressBg = document.createElement('div');
+            progressBg.className = 'absolute inset-0 bg-white/10 rounded-full overflow-hidden';
+            const progressBar = document.createElement('div');
+            progressBar.className = 'h-full bg-accent w-0 transition-[width] duration-100';
+            progressBar.id = 'player-progress-bar';
+            progressBg.appendChild(progressBar);
+            
+            const seeker = document.createElement('input');
+            seeker.type = 'range';
+            seeker.className = 'absolute inset-0 w-full opacity-0 cursor-pointer z-10';
+            seeker.id = 'player-seeker';
+            
+            progressContainer.appendChild(progressBg);
+            progressContainer.appendChild(seeker);
+
+            const mainControls = document.createElement('div');
+            mainControls.className = 'flex justify-between items-center';
+
+            const leftGroup = document.createElement('div');
+            leftGroup.className = 'flex items-center gap-2';
+
+            const playBtn = this.createIconButton(this.icons.play, () => this.togglePlay(), 'Play/Pause');
+            playBtn.id = 'player-play-btn';
+            leftGroup.appendChild(playBtn);
+
+            if (options.onPrev) leftGroup.appendChild(this.createIconButton(this.icons.prev, options.onPrev, 'Prev'));
+            if (options.onNext) leftGroup.appendChild(this.createIconButton(this.icons.next, options.onNext, 'Next'));
+
+            const timeDisplay = document.createElement('div');
+            timeDisplay.className = 'text-[10px] md:text-xs font-bold font-mono tracking-tighter opacity-80 ml-2';
+            timeDisplay.id = 'player-time';
+            timeDisplay.textContent = '00:00 / 00:00';
+            leftGroup.appendChild(timeDisplay);
+
+            const rightGroup = document.createElement('div');
+            rightGroup.className = 'flex items-center gap-1.5 md:gap-4';
+
+            const volumeGroup = document.createElement('div');
+            volumeGroup.className = 'hidden md:flex items-center gap-2 group/volume';
+            const volBtn = this.createIconButton(this.icons.volumeHigh, () => this.toggleMute(), 'Mute');
+            volBtn.id = 'player-vol-btn';
+            const volSlider = document.createElement('input');
+            volSlider.type = 'range';
+            volSlider.className = 'w-0 group-hover/volume:w-20 transition-all duration-300 player-slider';
+            volSlider.id = 'player-vol-slider';
+            volSlider.min = '0'; volSlider.max = '1'; volSlider.step = '0.1'; volSlider.value = '1';
+            volumeGroup.appendChild(volBtn);
+            volumeGroup.appendChild(volSlider);
+            rightGroup.appendChild(volumeGroup);
+
+            const speedBtn = document.createElement('button');
+            speedBtn.className = 'text-[10px] font-black w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all';
+            speedBtn.textContent = '1X';
+            speedBtn.onclick = () => this.cycleSpeed(speedBtn);
+            rightGroup.appendChild(speedBtn);
+
+            if (options.onModeSwitch) {
+                const subBtn = this.createIconButton(this.icons.sub, options.onModeSwitch, 'Toggle Sub/Dub');
+                if (options.currentMode === 'dub') subBtn.classList.add('text-accent');
+                rightGroup.appendChild(subBtn);
+            }
+
+            const vlcBtn = this.createIconButton(this.icons.vlc, () => {
+                window.location.href = `vlc://${options.url}`;
+                this.showSkipIndicator('Opening in VLC...', 'center');
+            }, 'Open in VLC');
+            vlcBtn.classList.add('flex');
+            rightGroup.appendChild(vlcBtn);
+
+            const skipBtn = this.createIconButton(this.icons.skipForward, () => {
+                if (this.videoElement) { this.videoElement.currentTime += 85; this.showSkipIndicator('+85s', 'center'); }
+            }, 'Skip Intro');
+            skipBtn.classList.add('hidden', 'md:flex');
+            rightGroup.appendChild(skipBtn);
+
+            const theaterBtn = this.createIconButton(this.icons.theater, () => this.toggleTheaterMode(), 'Theater');
+            theaterBtn.classList.add('hidden', 'lg:flex');
+            rightGroup.appendChild(theaterBtn);
+
+            rightGroup.appendChild(this.createIconButton(this.icons.settings, () => this.toggleSettings(), 'Settings'));
+            rightGroup.appendChild(this.createIconButton(this.icons.fullscreen, () => this.toggleFullscreen(), 'Fullscreen'));
+
+            mainControls.appendChild(leftGroup);
+            mainControls.appendChild(rightGroup);
+
+            bottomBar.appendChild(progressContainer);
+            bottomBar.appendChild(mainControls);
+
+            overlay.appendChild(topBar);
+            overlay.appendChild(centerGroup);
+            overlay.appendChild(bottomBar);
+            this.container.appendChild(overlay);
+
+            this.setupControlListeners(seeker, volSlider);
+        }
+
+        setupControlListeners(seeker, volSlider) {
+            if (!this.videoElement) return;
+            const video = this.videoElement;
+            const playBtn = document.getElementById('player-play-btn');
+            const progressBar = document.getElementById('player-progress-bar');
+            const timeDisplay = document.getElementById('player-time');
+
+            video.addEventListener('play', () => { if (playBtn) playBtn.innerHTML = this.icons.pause; });
+            video.addEventListener('pause', () => { if (playBtn) playBtn.innerHTML = this.icons.play; });
+
+            video.addEventListener('timeupdate', () => {
+                const p = (video.currentTime / video.duration) * 100;
+                if (progressBar) progressBar.style.width = `${p}%`;
+                seeker.value = p.toString();
+                if (timeDisplay) timeDisplay.textContent = `${this.formatTime(video.currentTime)} / ${this.formatTime(video.duration)}`;
+            });
+
+            video.addEventListener('ended', () => {
+                if (this.isAutoPlayEnabled && this.currentOptions?.onNext) {
+                    this.showSkipIndicator('Auto-playing next...', 'center');
+                    setTimeout(() => this.currentOptions?.onNext?.(), 2000);
+                }
+            });
+
+            seeker.addEventListener('input', () => {
+                const time = (parseFloat(seeker.value) / 100) * video.duration;
+                video.currentTime = time;
+            });
+
+            volSlider.addEventListener('input', () => {
+                video.volume = parseFloat(volSlider.value);
+                this.updateVolumeIcon(video.volume);
+            });
+
+            this.handleKeyDownBound = this.handleKeyDown.bind(this);
+            window.addEventListener('keydown', this.handleKeyDownBound);
+
+            this.container.onmousemove = () => this.showControls();
+            this.container.onmouseleave = () => this.hideControls();
+            this.showControls();
+        }
+
+        showControls() {
+            if (!this.controlsOverlay) return;
+            this.controlsOverlay.style.opacity = '1';
+            this.container.style.cursor = 'default';
+            clearTimeout(this.autoHideTimer);
+            this.autoHideTimer = setTimeout(() => this.hideControls(), 3000);
+        }
+
+        handleKeyDown(e) {
+            if (!this.videoElement || document.activeElement?.tagName === 'INPUT') return;
+
+            switch (e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    this.togglePlay();
+                    break;
+                case 'ArrowRight':
+                    this.videoElement.currentTime += 10;
+                    this.showSkipIndicator('+10s', 'right');
+                    break;
+                case 'ArrowLeft':
+                    this.videoElement.currentTime -= 10;
+                    this.showSkipIndicator('-10s', 'left');
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    this.videoElement.volume = Math.min(1, this.videoElement.volume + 0.1);
+                    this.updateVolumeIcon(this.videoElement.volume);
+                    this.showSkipIndicator(`Vol: ${Math.round(this.videoElement.volume * 100)}%`, 'center');
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    this.videoElement.volume = Math.max(0, this.videoElement.volume - 0.1);
+                    this.updateVolumeIcon(this.videoElement.volume);
+                    this.showSkipIndicator(`Vol: ${Math.round(this.videoElement.volume * 100)}%`, 'center');
+                    break;
+                case 'KeyF':
+                    this.toggleFullscreen();
+                    break;
+                case 'KeyM':
+                    this.toggleMute();
+                    break;
+            }
+        }
+
+        hideControls() {
+            if (!this.controlsOverlay || (this.videoElement && this.videoElement.paused)) return;
+            this.controlsOverlay.style.opacity = '0';
+            this.container.style.cursor = 'none';
+        }
+
+        togglePlay() {
+            if (!this.videoElement) return;
+            if (this.videoElement.paused) this.videoElement.play();
+            else this.videoElement.pause();
+        }
+
+        toggleMute() {
+            if (!this.videoElement) return;
+            this.videoElement.muted = !this.videoElement.muted;
+            this.updateVolumeIcon(this.videoElement.muted ? 0 : this.videoElement.volume);
+        }
+
+        updateVolumeIcon(vol) {
+            const btn = document.getElementById('player-vol-btn');
+            if (btn) btn.innerHTML = vol === 0 ? this.icons.volumeMute : this.icons.volumeHigh;
+        }
+
+        cycleSpeed(btn) {
+            if (!this.videoElement) return;
+            const speeds = [1, 1.25, 1.5, 2];
+            let current = speeds.indexOf(this.videoElement.playbackRate);
+            let next = (current + 1) % speeds.length;
+            this.videoElement.playbackRate = speeds[next];
+            btn.textContent = speeds[next] + 'X';
+        }
+
+        formatTime(s) {
+            if (isNaN(s)) return "00:00";
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            const sec = Math.floor(s % 60);
+            return (h > 0 ? h + ":" : "") + (m < 10 ? "0" + m : m) + ":" + (sec < 10 ? "0" + sec : sec);
+        }
+
+        setupInteractions() {
+            if (!this.videoElement) return;
+            this.videoElement.onclick = () => this.togglePlay();
+            this.videoElement.ondblclick = (e) => {
+                const rect = this.videoElement.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                if (x > rect.width / 2) {
+                    this.videoElement.currentTime += 10;
+                    this.showSkipIndicator('+10s', 'right');
+                } else {
+                    this.videoElement.currentTime -= 10;
+                    this.showSkipIndicator('-10s', 'left');
+                }
+            };
+        }
+
+        showSkipIndicator(text, side) {
+            const i = document.createElement('div');
+            let posClass = side === 'left' ? 'left-1/4' : (side === 'right' ? 'right-1/4' : 'left-1/2 -translate-x-1/2');
+            i.className = `absolute top-1/2 -translate-y-1/2 ${posClass} bg-accent/90 text-white font-black px-6 py-3 rounded-2xl fade-in z-50 shadow-2xl backdrop-blur-md border border-white/20`;
+            i.textContent = text;
+            this.container.appendChild(i);
+            setTimeout(() => i.remove(), 800);
+        }
+
+        triggerCast() {
+            if (this.videoElement && this.videoElement.remote) this.videoElement.remote.prompt();
+            else alert("Cast not supported.");
+        }
+
+        toggleFullscreen() {
+            const container = this.container;
+            if (!document.fullscreenElement) {
+                if (container.requestFullscreen) container.requestFullscreen();
+                else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        toggleSettings() {
+            if (!this.currentOptions?.allLinks) {
+                this.showSkipIndicator('No quality options', 'center');
+                return;
+            }
+
+            const existing = document.getElementById('player-settings-menu');
+            if (existing) { existing.remove(); return; }
+
+            const menu = document.createElement('div');
+            menu.id = 'player-settings-menu';
+            menu.className = 'absolute bottom-24 right-6 bg-sidebar/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2 z-[60] flex flex-col gap-1 min-w-[160px] shadow-2xl fade-in';
+            
+            const title = document.createElement('div');
+            title.className = 'text-[10px] font-black uppercase tracking-widest p-2 opacity-40';
+            title.textContent = 'Quality / Sources';
+            menu.appendChild(title);
+
+            this.currentOptions.allLinks.forEach((link) => {
+                const item = document.createElement('button');
+                const isCurrent = (link.proxyUrl || link.url) === this.currentOptions?.url;
+                item.className = `flex items-center justify-between gap-4 p-3 rounded-xl text-xs font-bold transition-all hover:bg-white/5 ${isCurrent ? 'text-accent bg-accent/5' : 'text-white/60'}`;
+                
+                const label = document.createElement('span');
+                label.textContent = `${link.resolution || 'Auto'} (${link.provider})`;
+                item.appendChild(label);
+
+                if (isCurrent) {
+                    const dot = document.createElement('div');
+                    dot.className = 'w-1.5 h-1.5 rounded-full bg-accent';
+                    item.appendChild(dot);
+                }
+
+                item.onclick = () => {
+                    this.switchQuality(link);
+                    menu.remove();
+                };
+                menu.appendChild(item);
+            });
+
+            const apToggle = document.createElement('button');
+            apToggle.className = 'flex items-center justify-between gap-4 p-3 rounded-xl text-xs font-bold transition-all border-t border-white/5 mt-1 hover:bg-white/5';
+            apToggle.innerHTML = `<span>Auto-Play Next</span> <span class="${this.isAutoPlayEnabled ? 'text-accent' : 'text-white/20'}">${this.isAutoPlayEnabled ? 'ON' : 'OFF'}</span>`;
+            apToggle.onclick = () => {
+                this.isAutoPlayEnabled = !this.isAutoPlayEnabled;
+                this.showSkipIndicator(`Auto-Play: ${this.isAutoPlayEnabled ? 'ON' : 'OFF'}`, 'center');
+                menu.remove();
+            };
+            menu.appendChild(apToggle);
+
+            this.container.appendChild(menu);
+        }
+
+        switchQuality(link) {
+            if (!this.videoElement || !this.currentOptions) return;
+            const currentTime = this.videoElement.currentTime;
+            const isPaused = this.videoElement.paused;
+
+            this.currentOptions.url = link.proxyUrl || link.url;
+            this.currentOptions.isHls = link.isHls;
+
+            this.showSkipIndicator(`Switching to ${link.resolution || 'Auto'}...`, 'center');
+
+            if (this.hlsInstance) { this.hlsInstance.destroy(); this.hlsInstance = null; }
+            
+            const url = this.currentOptions.url;
+            if (this.currentOptions.isHls || url.includes('.m3u8')) {
+                if (window.Hls && Hls.isSupported()) {
+                    this.hlsInstance = new Hls({ xhrSetup: (xhr) => { xhr.withCredentials = false; } });
+                    this.hlsInstance.loadSource(url);
+                    this.hlsInstance.attachMedia(this.videoElement);
+                } else {
+                    this.videoElement.src = url;
+                }
+            } else {
+                this.videoElement.src = url;
+            }
+
+            this.videoElement.onloadedmetadata = () => {
+                this.videoElement.currentTime = currentTime;
+                if (!isPaused) this.videoElement.play();
+                this.videoElement.onloadedmetadata = null;
+            };
+        }
+
+        toggleTheaterMode() {
+            this.isTheaterMode = !this.isTheaterMode;
+            if (this.isTheaterMode) {
+                this.container.classList.add('theater-mode');
+                this.showSkipIndicator('Theater Mode: ON', 'center');
+            } else {
+                this.container.classList.remove('theater-mode');
+                this.showSkipIndicator('Theater Mode: OFF', 'center');
+            }
+        }
+
+        createIconButton(icon, onClick, title) {
+            const btn = document.createElement('button');
+            btn.className = 'w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/20 active:scale-95 transition-all border border-white/5 backdrop-blur-md text-white cursor-pointer';
+            btn.innerHTML = icon;
+            btn.title = title;
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                onClick();
+            };
+            return btn;
+        }
+
+        mountIframe(url) {
+            this.clear();
+            const iframe = document.createElement('iframe');
+            iframe.className = 'w-full h-full bg-black border-none';
+            iframe.src = url;
+            iframe.allowFullscreen = true;
+            iframe.allow = 'autoplay; fullscreen; encrypted-media;';
+            iframe.sandbox.add('allow-forms', 'allow-scripts', 'allow-same-origin', 'allow-presentation');
+            this.container.appendChild(iframe);
+        }
+
+        clear() {
+            if (this.handleKeyDownBound) {
+                window.removeEventListener('keydown', this.handleKeyDownBound);
+                this.handleKeyDownBound = null;
+            }
+            if (this.hlsInstance) { this.hlsInstance.destroy(); this.hlsInstance = null; }
+            clearTimeout(this.autoHideTimer);
+            this.videoElement = null;
+            this.controlsOverlay = null;
+            this.container.innerHTML = '';
+            this.container.style.cursor = 'default';
+        }
+      }
+
+      class UIController {
+        constructor(getProxyUrl) {
+          this.getProxyUrl = getProxyUrl;
+          this.grid = document.getElementById('content-grid');
+          this.miniSearch = document.getElementById('search-results-mini');
+          this.playerOverlay = document.getElementById('player-overlay');
+          this.episodesList = document.getElementById('episodes-list');
+          this.episodesCount = document.getElementById('current-ep-count');
+          this.playerTitle = document.getElementById('player-title');
+          this.searchInput = document.getElementById('search-input');
+          this.modeBtn = document.getElementById('mode-toggle');
+          this.heroImg = document.getElementById('hero-img');
+          this.heroTitle = document.getElementById('hero-title');
+          this.heroGenres = document.getElementById('hero-genres');
+          this.heroDescription = document.getElementById('hero-description');
+        }
+
+        setLoading(isLoading) {
+          if (isLoading) {
+            this.grid.innerHTML = `
+              <div class="col-span-full flex flex-col items-center justify-center py-32 space-y-4">
+                <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-accent"></div>
+                <p class="text-xs font-bold text-text-dim uppercase tracking-[0.2em]">Synchronizing Data...</p>
+              </div>
+            `;
+          }
+        }
+
+        renderEmpty(message = "Nothing found here yet") {
+            this.grid.innerHTML = `
+              <div class="col-span-full flex flex-col items-center justify-center py-32 opacity-30">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-4"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                <p class="text-sm font-bold uppercase tracking-widest">${message}</p>
+              </div>
+            `;
+        }
+
+        renderResults(results, mode, onSelect) {
+          this.grid.innerHTML = '';
+          if (results.length === 0) {
+              this.renderEmpty();
+              return;
+          }
+          
+          results.forEach((anime, index) => {
+            const card = document.createElement('div');
+            card.className = 'anime-card group cursor-pointer fade-in transition-all';
+            card.style.animationDelay = `${index * 50}ms`;
+            
+            const rawThumb = anime.thumbnail || anime.image;
+            const placeholderUrl = `https://placehold.co/400x600/18181b/ffffff?text=${encodeURIComponent(anime.name)}`;
+            const imageUrl = rawThumb ? this.getProxyUrl(rawThumb) : placeholderUrl;
+            
+            const eps = anime.availableEpisodes ? (anime.availableEpisodes[mode] || 0) : 0;
+
+            card.innerHTML = `
+              <div class="aspect-[2/3] relative overflow-hidden bg-surface rounded-2xl shadow-lg group-hover:shadow-accent/20 group-hover:shadow-2xl transition-all duration-500">
+                <img src="${imageUrl}" alt="${anime.name}" 
+                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                     loading="lazy" 
+                     onerror="this.src='${placeholderUrl}'; this.onerror=null;" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div class="absolute bottom-3 left-3 flex gap-2">
+                   <span class="bg-accent text-[10px] font-extrabold px-2 py-1 rounded-md uppercase tracking-wider shadow-lg">${eps} ${mode.toUpperCase()}</span>
+                </div>
+              </div>
+              <div class="py-4 px-2">
+                <h4 class="font-bold text-sm truncate group-hover:text-accent transition-colors mb-1">${anime.name}</h4>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] text-text-dim font-bold uppercase tracking-tight">${anime.genres?.[0] || 'Anime'}</span>
+                </div>
+              </div>
+            `;
+
+            card.onclick = () => onSelect(anime);
+            this.grid.appendChild(card);
+          });
+        }
+
+        setActiveTab(tabId) {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                if (item.id === tabId) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        renderMiniResults(results, onSelect) {
+          if (results.length === 0) {
+            this.miniSearch.classList.add('hidden');
+            return;
+          }
+
+          this.miniSearch.innerHTML = '';
+          this.miniSearch.classList.remove('hidden');
+
+          results.slice(0, 8).forEach(anime => {
+            const item = document.createElement('div');
+            item.className = 'flex items-center gap-4 p-3 hover:bg-white/5 cursor-pointer transition-colors border-b border-border last:border-0';
+            const rawThumb = anime.thumbnail || anime.image;
+            const thumbUrl = rawThumb ? this.getProxyUrl(rawThumb) : `https://placehold.co/100x150/18181b/ffffff?text=Anime`;
+            const eps = anime.availableEpisodes ? (Object.values(anime.availableEpisodes)[0] || 0) : 0;
+            
+            item.innerHTML = `
+              <img src="${thumbUrl}" class="w-10 h-14 object-cover rounded-lg shadow-sm" />
+              <div class="flex-1 overflow-hidden">
+                <h5 class="text-sm font-bold truncate mb-0.5">${anime.name}</h5>
+                <span class="text-[10px] text-text-dim font-bold uppercase tracking-wider">${eps} Episodes</span>
+              </div>
+            `;
+            item.onclick = () => {
+              onSelect(anime);
+              this.miniSearch.classList.add('hidden');
+              this.searchInput.value = '';
+            };
+            this.miniSearch.appendChild(item);
+          });
+        }
+
+        renderEpisodes(episodes, onSelect) {
+          this.episodesList.innerHTML = '';
+          this.episodesCount.textContent = `${episodes.length} ITEMS`;
+
+          episodes.forEach((ep, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'w-full flex items-center gap-4 p-3 rounded-xl hover:bg-surface border border-transparent hover:border-border transition-all text-left group fade-in';
+            btn.style.animationDelay = `${index * 30}ms`;
+            btn.innerHTML = `
+              <div class="w-10 h-10 rounded-lg bg-surface border border-border flex items-center justify-center text-xs font-bold group-hover:text-accent transition-colors">
+                ${ep.number}
+              </div>
+              <div class="flex-1 overflow-hidden">
+                <div class="text-[13px] font-bold truncate tracking-tight text-white/90 group-hover:text-white">${ep.title || `Episode ${ep.number}`}</div>
+                <div class="text-[10px] text-text-dim font-bold uppercase mt-0.5">Stream Quality: HD</div>
+              </div>
+            `;
+            btn.onclick = () => {
+              const actives = this.episodesList.querySelectorAll('.border-accent');
+              actives.forEach(a => {
+                  a.classList.remove('bg-accent/10', 'border-accent');
+                  a.classList.add('hover:bg-surface', 'border-transparent');
+              });
+              btn.classList.add('bg-accent/10', 'border-accent');
+              btn.classList.remove('hover:bg-surface', 'border-transparent');
+              onSelect(ep);
+            };
+            this.episodesList.appendChild(btn);
+          });
+        }
+
+        showPlayer(title) {
+          this.playerOverlay.classList.remove('hidden');
+          this.playerTitle.textContent = title;
+          document.body.style.overflow = 'hidden';
+        }
+
+        hidePlayer() {
+          this.playerOverlay.classList.add('hidden');
+          document.body.style.overflow = 'auto';
+        }
+
+        updateHero(anime) {
+            if (anime) {
+                const rawThumb = anime.thumbnail || anime.image;
+                const placeholderUrl = 'https://placehold.co/1200x400/18181b/ffffff?text=Anime+Spotlight';
+                
+                this.heroImg.onerror = () => {
+                    this.heroImg.src = placeholderUrl;
+                    this.heroImg.onerror = null;
+                };
+
+                if (rawThumb && rawThumb.startsWith('http')) {
+                    this.heroImg.src = this.getProxyUrl(rawThumb);
+                    this.heroImg.classList.remove('opacity-0');
+                    this.heroImg.classList.add('opacity-60'); 
+                } else {
+                    this.heroImg.src = placeholderUrl;
+                    this.heroImg.classList.remove('opacity-0');
+                    this.heroImg.classList.add('opacity-40');
+                }
+                this.heroTitle.textContent = anime.name;
+                this.heroDescription.textContent = anime.description || 'No description available.';
+                
+                let genresHtml = '';
+                if (anime.genres && anime.genres.length > 0) {
+                    genresHtml = anime.genres.slice(0, 3).map(g => `<span>${g}</span>`).join('<span>•</span>');
+                } else {
+                    genresHtml = '<span>Trending</span><span>•</span><span>Featured</span><span>•</span><span>Series</span>';
+                }
+                
+                if (anime.score) {
+                    genresHtml += `<span>•</span><span class="text-accent font-bold">★ ${anime.score.toFixed(1)}</span>`;
+                }
+                
+                this.heroGenres.innerHTML = genresHtml;
+            }
+        }
+
+        toggleMode(mode) {
+            this.modeBtn.textContent = mode.toUpperCase();
+            this.modeBtn.style.color = mode === 'dub' ? '#8b5cf6' : '#fff';
+        }
+
+        getSearchQuery() {
+            return this.searchInput.value.trim();
+        }
+      }
+
+      class AppController {
+        constructor(api, ui, player) {
+          this.api = api;
+          this.ui = ui;
+          this.player = player;
+          this.currentMode = 'sub';
+          this.selectedAnime = null;
+          this.history = [];
+          this.favorites = [];
+          this.watchlist = [];
+          this.loadLocalData();
+        }
+
+        init() {
+          this.setupEventListeners();
+          this.fetchTrending();
+        }
+
+        loadLocalData() {
+            try {
+                this.history = JSON.parse(localStorage.getItem('anime-history') || '[]');
+                this.favorites = JSON.parse(localStorage.getItem('anime-favorites') || '[]');
+                this.watchlist = JSON.parse(localStorage.getItem('anime-watchlist') || '[]');
+            } catch (e) {
+                console.error('Failed to load local data', e);
+            }
+        }
+
+        setupEventListeners() {
+          const searchInput = document.getElementById('search-input');
+          const modeBtn = document.getElementById('mode-toggle');
+          const closePlayer = document.getElementById('close-player');
+          const logoContainer = document.getElementById('logo-container');
+          const heroPlay = document.getElementById('hero-play');
+
+          const tabs = {
+              'nav-home': () => this.fetchTrending(),
+              'nav-discover': () => this.handleTabClick('nav-discover', 'action'),
+              'nav-library': () => this.renderLocalList('nav-library', this.watchlist, 'Your watchlist is empty'),
+              'nav-trending': () => this.handleTabClick('nav-trending', 'trending'),
+              'nav-watching': () => this.renderLocalList('nav-watching', this.watchlist, 'Nothing in watchlist'),
+              'nav-favorites': () => this.renderLocalList('nav-favorites', this.favorites, 'No favorites yet'),
+              'nav-history': () => this.renderHistoryList(),
+              // Mobile Navigation
+              'mobile-nav-home': () => this.fetchTrending(),
+              'mobile-nav-discover': () => this.handleTabClick('mobile-nav-discover', 'action'),
+              'mobile-nav-library': () => this.renderLocalList('mobile-nav-library', this.watchlist, 'Your watchlist is empty'),
+              'mobile-nav-history': () => this.renderHistoryList()
+          };
+
+          Object.entries(tabs).forEach(([id, action]) => {
+              document.getElementById(id)?.addEventListener('click', () => {
+                  this.handleNavigation(id, action);
+              });
+          });
+
+          let debounceTimer;
+          searchInput?.addEventListener('input', (e) => {
+            const query = e.target.value;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => this.handleSearch(query), 300);
+          });
+
+          modeBtn?.addEventListener('click', () => {
+            this.currentMode = this.currentMode === 'sub' ? 'dub' : 'sub';
+            this.ui.toggleMode(this.currentMode);
+            
+            const activeTab = document.querySelector('.nav-item.active') || document.querySelector('.mobile-nav-item.active');
+            if (activeTab) {
+                const id = activeTab.id;
+                if (id.includes('home') || id.includes('trending')) this.fetchTrending();
+                else if (id.includes('discover')) this.handleTabClick(id, 'action');
+            }
+
+            if (this.selectedAnime) {
+                this.loadAnimeDetails(this.selectedAnime);
+            }
+          });
+
+          closePlayer?.addEventListener('click', () => {
+            this.ui.hidePlayer();
+            this.player.clear();
+          });
+
+          logoContainer?.addEventListener('click', () => {
+             this.ui.setActiveTab('nav-home');
+             this.fetchTrending();
+             window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+
+          heroPlay?.addEventListener('click', () => {
+              if (this.selectedAnime) {
+                  this.loadAnimeDetails(this.selectedAnime);
+                  this.ui.showPlayer(this.selectedAnime.name);
+              }
+          });
+        }
+
+        handleNavigation(id, action) {
+          this.ui.setActiveTab(id);
+
+          // Update Mobile Nav Active State
+          const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+          mobileNavItems.forEach(item => {
+              if (item.id === id) {
+                  item.classList.add('active');
+              } else if (id.startsWith('mobile-nav')) {
+                  item.classList.remove('active');
+              }
+          });
+
+          action();
+        }
+
+        async handleTabClick(tabId, query) {
+            this.ui.setActiveTab(tabId);
+            this.ui.setLoading(true);
+            const results = await this.api.search(query);
+            this.ui.renderResults(results, this.currentMode, (anime) => this.selectAnime(anime));
+        }
+
+        renderLocalList(tabId, list, emptyMsg) {
+            this.ui.setActiveTab(tabId);
+            this.ui.renderResults(list, this.currentMode, (anime) => this.selectAnime(anime));
+            if (list.length === 0) this.ui.renderEmpty(emptyMsg);
+        }
+
+        renderHistoryList() {
+            this.ui.setActiveTab('nav-history');
+            const transformedList = this.history.map(h => ({
+                id: h.animeId,
+                name: `${h.name} - Ep ${h.episode}`,
+                image: h.image,
+                thumbnail: h.image
+            }));
+            this.ui.renderResults(transformedList, this.currentMode, (anime) => {
+                const original = this.history.find(h => h.animeId === anime.id);
+                if (original) this.selectAnime({ id: original.animeId, name: original.name, image: original.image, thumbnail: original.image });
+            });
+            if (this.history.length === 0) this.ui.renderEmpty('No history recorded');
+        }
+
+        async handleSearch(query) {
+          if (query.length < 2) {
+            this.ui.renderMiniResults([], () => {});
+            return;
+          }
+
+          const results = await this.api.search(query);
+          this.ui.renderMiniResults(results, (anime) => this.selectAnime(anime));
+          this.ui.renderResults(results, this.currentMode, (anime) => this.selectAnime(anime));
+        }
+
+        async fetchTrending() {
+          this.ui.setLoading(true);
+          const results = await this.api.search('trending');
+          this.ui.renderResults(results, this.currentMode, (anime) => this.selectAnime(anime));
+          if (results.length > 0) {
+              this.selectedAnime = results[0];
+              this.ui.updateHero(results[0]);
+          }
+        }
+
+        async selectAnime(anime) {
+          this.selectedAnime = anime;
+          this.ui.updateHero(anime);
+          await this.loadAnimeDetails(anime);
+          this.ui.showPlayer(anime.name);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          
+          if (!this.watchlist.find(a => a.id === anime.id)) {
+              this.watchlist.unshift(anime);
+              localStorage.setItem('anime-watchlist', JSON.stringify(this.watchlist.slice(0, 50)));
+          }
+        }
+
+        async loadAnimeDetails(anime) {
+          const episodes = await this.api.getEpisodes(anime.id, this.currentMode);
+          this.ui.renderEpisodes(episodes, (ep) => this.playEpisode(anime.id, ep));
+          
+          if (episodes.length > 0) {
+              const hist = this.history.find(h => h.animeId === anime.id);
+              const startEp = hist ? episodes.find(e => e.number === hist.episode) || episodes[0] : episodes[0];
+              this.playEpisode(anime.id, startEp);
+          }
+        }
+
+        async playEpisode(id, episode) {
+          const links = await this.api.getLinks(id, episode.number, this.currentMode);
+          if (links.length > 0) {
+              const episodes = await this.api.getEpisodes(id, this.currentMode);
+              const currentIndex = episodes.findIndex(e => e.number === episode.number);
+              
+              this.player.play({
+                  url: links[0].proxyUrl || links[0].url,
+                  isHls: links[0].isHls,
+                  allLinks: links,
+                  currentMode: this.currentMode,
+                  onModeSwitch: () => {
+                      this.currentMode = this.currentMode === 'sub' ? 'dub' : 'sub';
+                      this.ui.toggleMode(this.currentMode);
+                      this.playEpisode(id, episode);
+                  },
+                  onNext: currentIndex < episodes.length - 1 ? () => {
+                      this.playEpisode(id, episodes[currentIndex + 1]);
+                  } : undefined,
+                  onPrev: currentIndex > 0 ? () => {
+                      this.playEpisode(id, episodes[currentIndex - 1]);
+                  } : undefined
+              });
+
+              if (this.selectedAnime) {
+                  const histItem = {
+                      animeId: id,
+                      name: this.selectedAnime.name,
+                      image: this.selectedAnime.thumbnail || this.selectedAnime.image || '',
+                      episode: episode.number,
+                      timestamp: Date.now()
+                  };
+                  this.history = [histItem, ...this.history.filter(h => h.animeId !== id)].slice(0, 50);
+                  localStorage.setItem('anime-history', JSON.stringify(this.history));
+              }
+          }
+        }
+      }
+
+      // Bootstrap
+      document.addEventListener('DOMContentLoaded', () => {
+          try {
+              const api = new AnimeAPI();
+              const player = new PlayerManager('video-container');
+              const ui = new UIController(api.getProxyImageUrl.bind(api));
+              const app = new AppController(api, ui, player);
+              
+              app.init();
+          } catch (error) {
+              console.error("[Trace] Fatal Initialization Error:", error);
+          }
+      });
+    </script>
   </body>
 </html>
