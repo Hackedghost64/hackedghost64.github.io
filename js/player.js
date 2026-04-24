@@ -169,7 +169,7 @@ export class PlayerManager {
           window.location.href = `vlc://${options.url}`;
           this.showSkipIndicator('Opening in VLC...', 'center');
       }, 'Open in VLC');
-      vlcBtn.classList.add('hidden', 'md:flex');
+      vlcBtn.classList.add('flex');
       rightGroup.appendChild(vlcBtn);
 
       const skipBtn = this.createIconButton(this.icons.skipForward, () => {
