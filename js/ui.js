@@ -1,35 +1,21 @@
-import { AnimeSearchResult, Episode } from './types';
-
 export class UIController {
-  private grid: HTMLElement;
-  private miniSearch: HTMLElement;
-  private playerOverlay: HTMLElement;
-  private episodesList: HTMLElement;
-  private episodesCount: HTMLElement;
-  private playerTitle: HTMLElement;
-  private searchInput: HTMLInputElement;
-  private modeBtn: HTMLElement;
-  private heroImg: HTMLImageElement;
-  private heroTitle: HTMLElement;
-  private heroGenres: HTMLElement;
-  private heroDescription: HTMLElement;
-
-  constructor(private getProxyUrl: (url: string) => string) {
-    this.grid = document.getElementById('content-grid')!;
-    this.miniSearch = document.getElementById('search-results-mini')!;
-    this.playerOverlay = document.getElementById('player-overlay')!;
-    this.episodesList = document.getElementById('episodes-list')!;
-    this.episodesCount = document.getElementById('current-ep-count')!;
-    this.playerTitle = document.getElementById('player-title')!;
-    this.searchInput = document.getElementById('search-input') as HTMLInputElement;
-    this.modeBtn = document.getElementById('mode-toggle')!;
-    this.heroImg = document.getElementById('hero-img') as HTMLImageElement;
-    this.heroTitle = document.getElementById('hero-title')!;
-    this.heroGenres = document.getElementById('hero-genres')!;
-    this.heroDescription = document.getElementById('hero-description')!;
+  constructor(getProxyUrl) {
+    this.getProxyUrl = getProxyUrl;
+    this.grid = document.getElementById('content-grid');
+    this.miniSearch = document.getElementById('search-results-mini');
+    this.playerOverlay = document.getElementById('player-overlay');
+    this.episodesList = document.getElementById('episodes-list');
+    this.episodesCount = document.getElementById('current-ep-count');
+    this.playerTitle = document.getElementById('player-title');
+    this.searchInput = document.getElementById('search-input');
+    this.modeBtn = document.getElementById('mode-toggle');
+    this.heroImg = document.getElementById('hero-img');
+    this.heroTitle = document.getElementById('hero-title');
+    this.heroGenres = document.getElementById('hero-genres');
+    this.heroDescription = document.getElementById('hero-description');
   }
 
-  setLoading(isLoading: boolean) {
+  setLoading(isLoading) {
     if (isLoading) {
       this.grid.innerHTML = `
         <div class="col-span-full flex flex-col items-center justify-center py-32 space-y-4">
@@ -40,7 +26,7 @@ export class UIController {
     }
   }
 
-  renderEmpty(message: string = "Nothing found here yet") {
+  renderEmpty(message = "Nothing found here yet") {
       this.grid.innerHTML = `
         <div class="col-span-full flex flex-col items-center justify-center py-32 opacity-30">
           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-4"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
@@ -49,7 +35,7 @@ export class UIController {
       `;
   }
 
-  renderResults(results: AnimeSearchResult[], mode: 'sub' | 'dub', onSelect: (anime: AnimeSearchResult) => void) {
+  renderResults(results, mode, onSelect) {
     this.grid.innerHTML = '';
     if (results.length === 0) {
         this.renderEmpty();
@@ -93,7 +79,7 @@ export class UIController {
     });
   }
 
-  setActiveTab(tabId: string) {
+  setActiveTab(tabId) {
       const navItems = document.querySelectorAll('.nav-item');
       navItems.forEach(item => {
           if (item.id === tabId) {
@@ -104,7 +90,7 @@ export class UIController {
       });
   }
 
-  renderMiniResults(results: AnimeSearchResult[], onSelect: (anime: AnimeSearchResult) => void) {
+  renderMiniResults(results, onSelect) {
     if (results.length === 0) {
       this.miniSearch.classList.add('hidden');
       return;
@@ -136,7 +122,7 @@ export class UIController {
     });
   }
 
-  renderEpisodes(episodes: Episode[], onSelect: (ep: Episode) => void) {
+  renderEpisodes(episodes, onSelect) {
     this.episodesList.innerHTML = '';
     this.episodesCount.textContent = `${episodes.length} ITEMS`;
 
@@ -154,7 +140,6 @@ export class UIController {
         </div>
       `;
       btn.onclick = () => {
-        // Highlight active
         const actives = this.episodesList.querySelectorAll('.border-accent');
         actives.forEach(a => {
             a.classList.remove('bg-accent/10', 'border-accent');
@@ -168,7 +153,7 @@ export class UIController {
     });
   }
 
-  showPlayer(title: string) {
+  showPlayer(title) {
     this.playerOverlay.classList.remove('hidden');
     this.playerTitle.textContent = title;
     document.body.style.overflow = 'hidden';
@@ -179,7 +164,7 @@ export class UIController {
     document.body.style.overflow = 'auto';
   }
 
-  updateHero(anime: AnimeSearchResult | null) {
+  updateHero(anime) {
       if (anime) {
           const rawThumb = anime.thumbnail || anime.image;
           const placeholderUrl = 'https://placehold.co/1200x400/18181b/ffffff?text=Anime+Spotlight';
@@ -211,20 +196,17 @@ export class UIController {
           if (anime.score) {
               genresHtml += `<span>•</span><span class="text-accent font-bold">★ ${anime.score.toFixed(1)}</span>`;
           }
-          if (anime.status) {
-              genresHtml += `<span>•</span><span class="text-white/50">${anime.status}</span>`;
-          }
           
           this.heroGenres.innerHTML = genresHtml;
       }
   }
 
-  toggleMode(mode: 'sub' | 'dub') {
+  toggleMode(mode) {
       this.modeBtn.textContent = mode.toUpperCase();
       this.modeBtn.style.color = mode === 'dub' ? '#8b5cf6' : '#fff';
   }
 
-  getSearchQuery(): string {
+  getSearchQuery() {
       return this.searchInput.value.trim();
   }
 }

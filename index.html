@@ -4,6 +4,31 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AnimeVerse - Discover Premium Anime Content</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HLS.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              bg: '#09090b',
+              sidebar: '#0c0c0e',
+              accent: '#8b5cf6',
+              surface: '#18181b',
+              border: '#27272a',
+              'text-dim': '#a1a1aa',
+            },
+            fontFamily: {
+              sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    <!-- External Styles -->
+    <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
     <div id="root">
@@ -117,6 +142,8 @@
         </main>
       </div>
     </div>
-    <script type="module" src="/src/main.ts"></script>
+
+    <!-- Application Script -->
+    <script type="module" src="js/main.js"></script>
   </body>
 </html>

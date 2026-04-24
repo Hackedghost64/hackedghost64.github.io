@@ -1,21 +1,14 @@
-import { AnimeAPI } from './api';
-import { UIController } from './ui';
-import { PlayerManager } from './player';
-import { AnimeSearchResult, Episode, PlaybackMode, WatchHistoryItem } from './types';
-
 export class AppController {
-  private currentMode: PlaybackMode = 'sub';
-  private selectedAnime: AnimeSearchResult | null = null;
-  private history: WatchHistoryItem[] = [];
-  private favorites: AnimeSearchResult[] = [];
-  private watchlist: AnimeSearchResult[] = [];
-
-  constructor(
-    private api: AnimeAPI,
-    private ui: UIController,
-    private player: PlayerManager
-  ) {
-      this.loadLocalData();
+  constructor(api, ui, player) {
+    this.api = api;
+    this.ui = ui;
+    this.player = player;
+    this.currentMode = 'sub';
+    this.selectedAnime = null;
+    this.history = [];
+    this.favorites = [];
+    this.watchlist = [];
+    this.loadLocalData();
   }
 
   init() {
@@ -23,7 +16,7 @@ export class AppController {
     this.fetchTrending();
   }
 
-  private loadLocalData() {
+  loadLocalData() {
       try {
           this.history = JSON.parse(localStorage.getItem('anime-history') || '[]');
           this.favorites = JSON.parse(localStorage.getItem('anime-favorites') || '[]');
@@ -33,14 +26,13 @@ export class AppController {
       }
   }
 
-  private setupEventListeners() {
+  setupEventListeners() {
     const searchInput = document.getElementById('search-input');
     const modeBtn = document.getElementById('mode-toggle');
     const closePlayer = document.getElementById('close-player');
     const logoContainer = document.getElementById('logo-container');
     const heroPlay = document.getElementById('hero-play');
 
-    // Sidebar Tabs
     const tabs = {
         'nav-home': () => this.fetchTrending(),
         'nav-discover': () => this.handleTabClick('nav-discover', 'action'),
@@ -58,9 +50,9 @@ export class AppController {
         });
     });
 
-    let debounceTimer: any;
+    let debounceTimer;
     searchInput?.addEventListener('input', (e) => {
-      const query = (e.target as HTMLInputElement).value;
+      const query = e.target.value;
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => this.handleSearch(query), 300);
     });
@@ -69,7 +61,6 @@ export class AppController {
       this.currentMode = this.currentMode === 'sub' ? 'dub' : 'sub';
       this.ui.toggleMode(this.currentMode);
       
-      // Reload current view
       const activeTab = document.querySelector('.nav-item.active');
       if (activeTab) {
           const id = activeTab.id;
@@ -101,22 +92,22 @@ export class AppController {
     });
   }
 
-  private async handleTabClick(tabId: string, query: string) {
+  async handleTabClick(tabId, query) {
       this.ui.setActiveTab(tabId);
       this.ui.setLoading(true);
       const results = await this.api.search(query);
       this.ui.renderResults(results, this.currentMode, (anime) => this.selectAnime(anime));
   }
 
-  private renderLocalList(tabId: string, list: AnimeSearchResult[], emptyMsg: string) {
+  renderLocalList(tabId, list, emptyMsg) {
       this.ui.setActiveTab(tabId);
       this.ui.renderResults(list, this.currentMode, (anime) => this.selectAnime(anime));
       if (list.length === 0) this.ui.renderEmpty(emptyMsg);
   }
 
-  private renderHistoryList() {
+  renderHistoryList() {
       this.ui.setActiveTab('nav-history');
-      const transformedList: AnimeSearchResult[] = this.history.map(h => ({
+      const transformedList = this.history.map(h => ({
           id: h.animeId,
           name: `${h.name} - Ep ${h.episode}`,
           image: h.image,
@@ -129,21 +120,18 @@ export class AppController {
       if (this.history.length === 0) this.ui.renderEmpty('No history recorded');
   }
 
-  private async handleSearch(query: string) {
+  async handleSearch(query) {
     if (query.length < 2) {
       this.ui.renderMiniResults([], () => {});
       return;
     }
 
-    // Show mini results quickly
     const results = await this.api.search(query);
     this.ui.renderMiniResults(results, (anime) => this.selectAnime(anime));
-    
-    // Also update the main grid if the user pressed enter or stayed here
     this.ui.renderResults(results, this.currentMode, (anime) => this.selectAnime(anime));
   }
 
-  private async fetchTrending() {
+  async fetchTrending() {
     this.ui.setLoading(true);
     const results = await this.api.search('trending');
     this.ui.renderResults(results, this.currentMode, (anime) => this.selectAnime(anime));
@@ -153,43 +141,39 @@ export class AppController {
     }
   }
 
-  private async selectAnime(anime: AnimeSearchResult) {
+  async selectAnime(anime) {
     this.selectedAnime = anime;
     this.ui.updateHero(anime);
     await this.loadAnimeDetails(anime);
     this.ui.showPlayer(anime.name);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
-    // Add to library automatically for now as "Watching"
     if (!this.watchlist.find(a => a.id === anime.id)) {
         this.watchlist.unshift(anime);
         localStorage.setItem('anime-watchlist', JSON.stringify(this.watchlist.slice(0, 50)));
     }
   }
 
-  private async loadAnimeDetails(anime: AnimeSearchResult) {
+  async loadAnimeDetails(anime) {
     const episodes = await this.api.getEpisodes(anime.id, this.currentMode);
     this.ui.renderEpisodes(episodes, (ep) => this.playEpisode(anime.id, ep));
     
     if (episodes.length > 0) {
-        // Try to find if we were watching this episode
         const hist = this.history.find(h => h.animeId === anime.id);
         const startEp = hist ? episodes.find(e => e.number === hist.episode) || episodes[0] : episodes[0];
         this.playEpisode(anime.id, startEp);
     }
   }
 
-  private async playEpisode(id: string, episode: Episode) {
+  async playEpisode(id, episode) {
     const links = await this.api.getLinks(id, episode.number, this.currentMode);
     if (links.length > 0) {
         const episodes = await this.api.getEpisodes(id, this.currentMode);
         const currentIndex = episodes.findIndex(e => e.number === episode.number);
         
-        // Pre-fetch next episode link after 30 seconds of playback or immediately
         const prefetchNext = async () => {
             if (currentIndex < episodes.length - 1) {
                 const nextEp = episodes[currentIndex + 1];
-                console.log(`[Trace] Pre-fetching links for Ep ${nextEp.number}`);
                 await this.api.getLinks(id, nextEp.number, this.currentMode);
             }
         };
@@ -198,7 +182,7 @@ export class AppController {
         this.player.play({
             url: links[0].proxyUrl || links[0].url,
             isHls: links[0].isHls,
-            allLinks: links, // New field for quality selection
+            allLinks: links,
             currentMode: this.currentMode,
             onModeSwitch: () => {
                 this.currentMode = this.currentMode === 'sub' ? 'dub' : 'sub';
@@ -213,9 +197,8 @@ export class AppController {
             } : undefined
         });
 
-        // Update history
         if (this.selectedAnime) {
-            const histItem: WatchHistoryItem = {
+            const histItem = {
                 animeId: id,
                 name: this.selectedAnime.name,
                 image: this.selectedAnime.thumbnail || this.selectedAnime.image || '',

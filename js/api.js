@@ -1,14 +1,14 @@
-import { AnimeSearchResult, Episode, StreamingLink, PlaybackMode } from './types';
-
 export class AnimeAPI {
-  private readonly baseUrl = 'https://obs-2r2g.vercel.app';
+  constructor() {
+    this.baseUrl = 'https://obs-2r2g.vercel.app';
+  }
 
-  async search(query: string): Promise<AnimeSearchResult[]> {
+  async search(query) {
     try {
       const response = await fetch(`${this.baseUrl}/search?query=${encodeURIComponent(query)}`);
       if (!response.ok) throw new Error('Search failed');
       const data = await response.json();
-      return (data || []).map((item: any) => ({
+      return (data || []).map((item) => ({
           ...item,
           name: item.name || 'Unknown Anime'
       }));
@@ -18,15 +18,15 @@ export class AnimeAPI {
     }
   }
 
-  async getEpisodes(showId: string, mode: PlaybackMode): Promise<Episode[]> {
+  async getEpisodes(showId, mode) {
     try {
       const response = await fetch(`${this.baseUrl}/episodes?showId=${encodeURIComponent(showId)}&mode=${mode}`);
       if (!response.ok) throw new Error('Failed to fetch episodes');
       const data = await response.json();
       const episodes = Array.isArray(data) ? data : [];
-      return episodes.map((val: any) => {
+      return episodes.map((val) => {
           if (typeof val === 'string') return { number: val };
-          return val; // Already an object
+          return val;
       });
     } catch (error) {
       console.error('AnimeAPI Episodes Error:', error);
@@ -34,7 +34,7 @@ export class AnimeAPI {
     }
   }
 
-  async getLinks(showId: string, episode: string, mode: PlaybackMode): Promise<StreamingLink[]> {
+  async getLinks(showId, episode, mode) {
     try {
       const response = await fetch(`${this.baseUrl}/links?showId=${encodeURIComponent(showId)}&episode=${episode}&mode=${mode}`);
       if (!response.ok) throw new Error('Failed to fetch streaming links');
@@ -46,7 +46,7 @@ export class AnimeAPI {
     }
   }
 
-  getProxyImageUrl(url: string): string {
+  getProxyImageUrl(url) {
     if (!url) return '';
     return `${this.baseUrl}/image-proxy?url=${encodeURIComponent(url)}`;
   }
