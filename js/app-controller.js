@@ -53,25 +53,6 @@ export class AppController {
             this.handleNavigation(id, action);
         });
     });
-    }
-
-    private handleNavigation(id, action) {
-      this.ui.setActiveTab(id);
-
-      // Update Mobile Nav Active State
-      const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
-      mobileNavItems.forEach(item => {
-          if (item.id === id) {
-              item.classList.add('text-accent');
-              item.classList.remove('text-text-dim');
-          } else if (id.startsWith('mobile-nav')) {
-              item.classList.remove('text-accent');
-              item.classList.add('text-text-dim');
-          }
-      });
-
-      action();
-    }
 
     let debounceTimer;
     searchInput?.addEventListener('input', (e) => {
@@ -113,6 +94,24 @@ export class AppController {
             this.ui.showPlayer(this.selectedAnime.name);
         }
     });
+  }
+
+  handleNavigation(id, action) {
+    this.ui.setActiveTab(id);
+
+    // Update Mobile Nav Active State
+    const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+    mobileNavItems.forEach(item => {
+        if (item.id === id) {
+            item.classList.add('text-accent');
+            item.classList.remove('text-text-dim');
+        } else if (id.startsWith('mobile-nav')) {
+            item.classList.remove('text-accent');
+            item.classList.add('text-text-dim');
+        }
+    });
+
+    action();
   }
 
   async handleTabClick(tabId, query) {
