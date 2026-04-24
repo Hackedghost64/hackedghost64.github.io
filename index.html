@@ -573,8 +573,14 @@
             }
 
             const vlcBtn = this.createIconButton(this.icons.vlc, () => {
-                window.location.href = `vlc://${options.url}`;
-                this.showSkipIndicator('Opening in VLC...', 'center');
+                const streamUrl = options.url;
+                if (/Android/i.test(navigator.userAgent)) {
+                    // Android Intent for VLC
+                    window.location.href = `intent://${streamUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=org.videolan.vlc;type=video/*;end`;
+                } else {
+                    window.location.href = `vlc://${streamUrl}`;
+                }
+                this.showSkipIndicator('Opening VLC...', 'center');
             }, 'Open in VLC');
             vlcBtn.classList.add('flex');
             rightGroup.appendChild(vlcBtn);
@@ -735,18 +741,38 @@
 
         setupInteractions() {
             if (!this.videoElement) return;
+            
+            // Desktop double click
             this.videoElement.onclick = () => this.togglePlay();
             this.videoElement.ondblclick = (e) => {
                 const rect = this.videoElement.getBoundingClientRect();
                 const x = e.clientX - rect.left;
-                if (x > rect.width / 2) {
-                    this.videoElement.currentTime += 10;
-                    this.showSkipIndicator('+10s', 'right');
-                } else {
-                    this.videoElement.currentTime -= 10;
-                    this.showSkipIndicator('-10s', 'left');
-                }
+                this.handleSkipAt(x, rect.width);
             };
+
+            // Mobile double tap detection
+            let lastTap = 0;
+            this.videoElement.addEventListener('touchstart', (e) => {
+                const now = Date.now();
+                const timeDiff = now - lastTap;
+                if (timeDiff < 300 && timeDiff > 0) {
+                    e.preventDefault(); // Prevent zoom
+                    const rect = this.videoElement.getBoundingClientRect();
+                    const x = e.touches[0].clientX - rect.left;
+                    this.handleSkipAt(x, rect.width);
+                }
+                lastTap = now;
+            }, { passive: false });
+        }
+
+        handleSkipAt(x, width) {
+            if (x > width / 2) {
+                this.videoElement.currentTime += 10;
+                this.showSkipIndicator('+10s', 'right');
+            } else {
+                this.videoElement.currentTime -= 10;
+                this.showSkipIndicator('-10s', 'left');
+            }
         }
 
         showSkipIndicator(text, side) {
@@ -759,8 +785,15 @@
         }
 
         triggerCast() {
-            if (this.videoElement && this.videoElement.remote) this.videoElement.remote.prompt();
-            else alert("Cast not supported.");
+            if (!this.videoElement) return;
+            
+            if (this.videoElement.remote && this.videoElement.remote.prompt) {
+                this.videoElement.remote.prompt();
+            } else if (this.videoElement.webkitShowPlaybackTargetPicker) {
+                this.videoElement.webkitShowPlaybackTargetPicker();
+            } else {
+                alert("Screencast/AirPlay not supported in this browser. Try Chrome (Cast) or Safari (AirPlay).");
+            }
         }
 
         toggleFullscreen() {
