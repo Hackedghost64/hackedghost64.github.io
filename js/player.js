@@ -36,18 +36,39 @@ class PlayerManager {
     }
 
     initInteractionEvents() {
+        let clickTimer = null;
+
+        // Desktop and general click management
+        this.container.addEventListener('click', (e) => {
+            if (e.target.closest('button') || e.target.closest('input') || !this.videoElement) return;
+
+            // If a timer is already running, this is likely part of a double-click
+            if (clickTimer) {
+                clearTimeout(clickTimer);
+                clickTimer = null;
+                return;
+            }
+
+            // Set a timer to execute single-click action
+            clickTimer = setTimeout(() => {
+                this.togglePlay();
+                clickTimer = null;
+            }, 250);
+        });
+
         // Desktop double click
         this.container.addEventListener('dblclick', (e) => {
             if (e.target.closest('button') || e.target.closest('input') || !this.videoElement) return;
+            
+            // Clear the single-click timer to prevent pausing
+            if (clickTimer) {
+                clearTimeout(clickTimer);
+                clickTimer = null;
+            }
+
             const rect = this.container.getBoundingClientRect();
             const x = e.clientX - rect.left;
             this.handleSkipAt(x, rect.width);
-        });
-
-        // Click to toggle play (only if not clicking a control)
-        this.container.addEventListener('click', (e) => {
-            if (e.target.closest('button') || e.target.closest('input') || !this.videoElement) return;
-            this.togglePlay();
         });
 
         // Mobile double tap detection
@@ -57,13 +78,21 @@ class PlayerManager {
             
             const now = Date.now();
             const timeDiff = now - lastTap;
+            
             if (timeDiff < 300 && timeDiff > 0) {
-                e.preventDefault();
+                // It's a double tap - prevent the following click event
+                e.preventDefault(); 
+                if (clickTimer) {
+                    clearTimeout(clickTimer);
+                    clickTimer = null;
+                }
                 const rect = this.container.getBoundingClientRect();
                 const x = e.touches[0].clientX - rect.left;
                 this.handleSkipAt(x, rect.width);
+                lastTap = 0;
+            } else {
+                lastTap = now;
             }
-            lastTap = now;
         }, { passive: false });
     }
 
