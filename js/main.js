@@ -70,11 +70,6 @@ function runCinematicSequence() {
     // Hyper Speed Interaction
     const enterBtn = document.getElementById('enter-btn');
     enterBtn.onclick = () => {
-        const audioBloom = document.getElementById('audio-bloom');
-        const audioWoosh = document.getElementById('audio-woosh');
-        audioBloom.play().catch(() => {});
-        audioWoosh.play().catch(() => {});
-
         const exitTl = gsap.timeline();
         
         // Warp Drive Effect
