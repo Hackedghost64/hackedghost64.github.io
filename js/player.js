@@ -109,6 +109,19 @@ class PlayerManager {
         overlay.className = 'absolute inset-0 flex flex-col justify-between z-50 bg-gradient-to-t from-black/90 via-transparent to-black/40 opacity-100 transition-opacity duration-300';
         this.controlsOverlay = overlay;
         
+        // Centered Big Play Button for Mobile
+        if (isMobile) {
+            const bigPlayContainer = document.createElement('div');
+            bigPlayContainer.className = 'absolute inset-0 flex items-center justify-center pointer-events-none';
+            const bigPlayBtn = document.createElement('button');
+            bigPlayBtn.className = 'w-16 h-16 rounded-full bg-accent/20 backdrop-blur-xl border border-accent/40 flex items-center justify-center text-white pointer-events-auto opacity-0 transition-all duration-300 scale-110';
+            bigPlayBtn.id = 'player-big-play-btn';
+            bigPlayBtn.innerHTML = this.icons.play;
+            bigPlayBtn.onclick = (e) => { e.stopPropagation(); this.togglePlay(); };
+            bigPlayContainer.appendChild(bigPlayBtn);
+            overlay.appendChild(bigPlayContainer);
+        }
+
         const topBar = document.createElement('div');
         topBar.className = 'p-4 md:p-6 flex justify-between items-start';
         topBar.innerHTML = `<div class="glass px-3 py-1.5 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-accent animate-pulse"></span> ${isMobile ? 'LIVE' : 'HD STREAM'}</div>`;
@@ -133,7 +146,7 @@ class PlayerManager {
         
         const leftGroup = document.createElement('div');
         leftGroup.className = 'flex items-center gap-1 md:gap-3';
-        leftGroup.appendChild(this.createIconButton(this.icons.play, () => this.togglePlay(), 'Play/Pause', 'player-play-btn'));
+        if (!isMobile) leftGroup.appendChild(this.createIconButton(this.icons.play, () => this.togglePlay(), 'Play/Pause', 'player-play-btn'));
         
         const timeDisplay = document.createElement('div');
         timeDisplay.className = 'text-[9px] md:text-xs font-black font-mono tracking-tighter opacity-80 ml-1';
@@ -183,7 +196,6 @@ class PlayerManager {
     setupControlListeners(seeker, volSlider) {
         if (!this.videoElement) return;
         const video = this.videoElement;
-        const playBtn = document.getElementById('player-play-btn');
         const progressBar = document.getElementById('player-progress-bar');
         const timeDisplay = document.getElementById('player-time');
         const skipBtn = document.getElementById('skip-intro-btn');
@@ -196,9 +208,9 @@ class PlayerManager {
             if (Math.floor(video.currentTime) % 5 === 0) this.saveProgress();
             
             // Show Skip Intro in first 3 minutes
-            if (video.currentTime > 10 && video.currentTime < 180) {
+            if (skipBtn && video.currentTime > 10 && video.currentTime < 180) {
                 skipBtn.classList.remove('opacity-0', 'pointer-events-none');
-            } else {
+            } else if (skipBtn) {
                 skipBtn.classList.add('opacity-0', 'pointer-events-none');
             }
         });
@@ -210,10 +222,12 @@ class PlayerManager {
             }
         });
         seeker.addEventListener('input', () => { video.currentTime = (parseFloat(seeker.value) / 100) * video.duration; });
-        volSlider.addEventListener('input', () => {
-            this.volume = parseFloat(volSlider.value); video.volume = this.volume;
-            localStorage.setItem('player-volume', this.volume); this.updateVolumeIcon(this.volume);
-        });
+        if (volSlider) {
+            volSlider.addEventListener('input', () => {
+                this.volume = parseFloat(volSlider.value); video.volume = this.volume;
+                localStorage.setItem('player-volume', this.volume); this.updateVolumeIcon(this.volume);
+            });
+        }
         this.handleKeyDownBound = this.handleKeyDown.bind(this);
         window.addEventListener('keydown', this.handleKeyDownBound);
         this.container.onmousemove = () => this.showControls();
@@ -281,24 +295,48 @@ class PlayerManager {
 
     showControls() {
         if (!this.controlsOverlay) return;
-        this.controlsOverlay.style.opacity = '1'; this.container.style.cursor = 'default';
-        clearTimeout(this.autoHideTimer); this.autoHideTimer = setTimeout(() => this.hideControls(), 3000);
+        this.controlsOverlay.style.opacity = '1'; 
+        this.container.style.cursor = 'default';
+        
+        const bigPlayBtn = document.getElementById('player-big-play-btn');
+        if (bigPlayBtn) {
+            bigPlayBtn.style.opacity = '1';
+            bigPlayBtn.style.transform = 'scale(1)';
+        }
+
+        clearTimeout(this.autoHideTimer); 
+        this.autoHideTimer = setTimeout(() => this.hideControls(), 3000);
     }
 
     hideControls() {
-        if (!this.controlsOverlay || (this.videoElement && !this.videoElement.paused)) {
-            this.controlsOverlay.style.opacity = '0'; this.container.style.cursor = 'none';
+        if (!this.controlsOverlay) return;
+        if (this.videoElement && !this.videoElement.paused) {
+            this.controlsOverlay.style.opacity = '0'; 
+            this.container.style.cursor = 'none';
+            
+            const bigPlayBtn = document.getElementById('player-big-play-btn');
+            if (bigPlayBtn) {
+                bigPlayBtn.style.opacity = '0';
+                bigPlayBtn.style.transform = 'scale(0.8)';
+            }
         }
     }
 
     togglePlay() { 
         if (!this.videoElement) return; 
-        if (this.videoElement.paused) {
+        const isPaused = this.videoElement.paused;
+        if (isPaused) {
             this.videoElement.play(); 
             this.showSkipIndicator('PLAY', 'center');
         } else {
             this.videoElement.pause(); 
             this.showSkipIndicator('PAUSE', 'center');
+        }
+        
+        const bigPlayBtn = document.getElementById('player-big-play-btn');
+        if (bigPlayBtn) {
+            bigPlayBtn.innerHTML = isPaused ? this.icons.pause : this.icons.play;
+            gsap.fromTo(bigPlayBtn, { scale: 1.5, opacity: 1 }, { scale: 1, opacity: 0, duration: 0.5, ease: "power2.out" });
         }
     }
 

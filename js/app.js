@@ -3,7 +3,7 @@ class AppController {
     this.api = api;
     this.ui = ui;
     this.player = player;
-    this.currentMode = 'sub';
+    this.currentMode = localStorage.getItem('anime-mode') || 'sub';
     this.selectedAnime = null;
     this.history = JSON.parse(localStorage.getItem('anime-history') || '[]');
     this.favorites = JSON.parse(localStorage.getItem('anime-favorites') || '[]');
@@ -12,24 +12,66 @@ class AppController {
   init() {
     this.setupEventListeners();
     this.fetchHome();
+    this.updateModeUI();
+  }
+
+  updateModeUI() {
+      if (this.ui.modeBtn) {
+          this.ui.modeBtn.textContent = this.currentMode.toUpperCase();
+      }
   }
 
   setupEventListeners() {
     const searchInput = document.getElementById('search-input');
     const closePlayer = document.getElementById('close-player');
+    const clearDataBtn = document.getElementById('clear-data-btn');
 
     // Adaptive Tab Binding
-    const tabSelectors = this.ui.isMobile ? '.nav-btn' : '.nav-item';
-    document.querySelectorAll(tabSelectors).forEach(btn => {
-        btn.onclick = () => {
-            const id = btn.id;
-            this.ui.setActiveTab(id);
-            if (id.includes('home')) this.fetchHome();
-            else if (id.includes('discover')) this.handleSearch('action');
-            else if (id.includes('library')) this.renderList(this.favorites, 'No Favorites');
-            else if (id.includes('history')) this.renderList(this.history, 'No History');
+    if (this.ui.isMobile) {
+        document.getElementById('mobile-nav-home').onclick = () => {
+            this.ui.setActiveTab('mobile-nav-home');
+            this.ui.showView('home-view');
+            this.fetchHome();
         };
-    });
+        document.getElementById('mobile-nav-discover').onclick = () => {
+            this.ui.setActiveTab('mobile-nav-discover');
+            this.ui.showView('home-view');
+            this.handleSearch('action');
+        };
+        document.getElementById('mobile-nav-library').onclick = () => {
+            this.ui.setActiveTab('mobile-nav-library');
+            this.ui.showView('profile-view');
+        };
+        
+        document.getElementById('btn-favorites')?.addEventListener('click', () => {
+            this.ui.showView('home-view');
+            this.renderList(this.favorites, 'No Favorites');
+        });
+        document.getElementById('btn-history')?.addEventListener('click', () => {
+            this.ui.showView('home-view');
+            this.renderList(this.history, 'No History');
+        });
+    } else {
+        document.querySelectorAll('.nav-item').forEach(btn => {
+            btn.onclick = () => {
+                const id = btn.id;
+                this.ui.setActiveTab(id);
+                if (id.includes('home')) this.fetchHome();
+                else if (id.includes('discover')) this.handleSearch('action');
+                else if (id.includes('library')) this.renderList(this.favorites, 'No Favorites');
+                else if (id.includes('history')) this.renderList(this.history, 'No History');
+            };
+        });
+    }
+
+    if (clearDataBtn) {
+        clearDataBtn.onclick = () => {
+            if (confirm('Clear all your history and favorites?')) {
+                localStorage.clear();
+                window.location.reload();
+            }
+        };
+    }
 
     searchInput?.addEventListener('input', (e) => {
         const query = e.target.value;
@@ -59,15 +101,29 @@ class AppController {
     closePlayer.onclick = () => {
         this.ui.hidePlayer();
         this.player.clear();
+        this.renderContinueWatching();
     };
 
     if (this.ui.modeBtn) {
         this.ui.modeBtn.onclick = () => {
             this.currentMode = this.currentMode === 'sub' ? 'dub' : 'sub';
-            this.ui.modeBtn.textContent = this.currentMode.toUpperCase();
+            localStorage.setItem('anime-mode', this.currentMode);
+            this.updateModeUI();
             this.fetchHome();
+            if (this.selectedAnime) this.loadAnimeDetails(this.selectedAnime);
         };
     }
+  }
+
+  renderContinueWatching() {
+      if (!this.ui.isMobile) return;
+      const section = document.getElementById('continue-watching-section');
+      if (this.history.length > 0) {
+          section.classList.remove('hidden');
+          this.ui.renderResults(this.history, this.currentMode, (anime) => this.selectAnime(anime), 'continue-grid');
+      } else {
+          section.classList.add('hidden');
+      }
   }
 
   async fetchHome() {
@@ -76,6 +132,7 @@ class AppController {
     if (results.length > 0 && !this.selectedAnime) {
         this.selectAnime(results[0], false);
     }
+    this.renderContinueWatching();
   }
 
   async handleSearch(query) {
@@ -106,7 +163,11 @@ class AppController {
   async loadAnimeDetails(anime) {
     const episodes = await this.api.getEpisodes(anime.id, this.currentMode);
     this.ui.renderEpisodes(episodes, (ep) => this.playEpisode(anime.id, ep));
-    if (episodes.length > 0) this.playEpisode(anime.id, episodes[0]);
+    if (episodes.length > 0) {
+        const hist = this.history.find(h => h.id === anime.id);
+        const startEp = hist ? episodes.find(e => e.number === hist.episode) || episodes[0] : episodes[0];
+        this.playEpisode(anime.id, startEp);
+    }
   }
 
   async playEpisode(id, episode) {
@@ -121,12 +182,19 @@ class AppController {
             currentMode: this.currentMode,
             onModeSwitch: () => {
                 this.currentMode = this.currentMode === 'sub' ? 'dub' : 'sub';
+                localStorage.setItem('anime-mode', this.currentMode);
+                this.updateModeUI();
                 this.playEpisode(id, episode);
             }
         });
 
         // Add to history
-        const histItem = { id: id, name: this.selectedAnime.name, image: this.selectedAnime.image };
+        const histItem = { 
+            id: id, 
+            name: this.selectedAnime.name, 
+            image: this.selectedAnime.thumbnail || this.selectedAnime.image,
+            episode: episode.number 
+        };
         this.history = [histItem, ...this.history.filter(h => h.id !== id)].slice(0, 20);
         localStorage.setItem('anime-history', JSON.stringify(this.history));
     }

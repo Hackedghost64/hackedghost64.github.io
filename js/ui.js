@@ -21,39 +21,77 @@ class UIController {
 
   renderMobileLayout() {
     this.appContainer.innerHTML = `
-      <header class="h-12 flex items-center justify-between px-4 z-50 bg-bg/80 backdrop-blur-xl border-b border-white/5">
+      <header class="h-14 flex items-center justify-between px-4 z-50 bg-bg/80 backdrop-blur-xl border-b border-white/5 shrink-0">
         <div class="flex items-center gap-2 overflow-hidden">
-           <img src="logo.png" class="w-6 h-6 shrink-0" />
+           <img src="logo.png" class="w-7 h-7 shrink-0" />
            <span class="text-[10px] font-black uppercase tracking-[0.2em] truncate">AnimeVerse</span>
         </div>
-        <div class="flex items-center gap-2">
-           <button id="search-trigger" class="p-2 shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
-           <div class="w-6 h-6 rounded-full bg-accent/20 border border-accent/40 shrink-0"></div>
+        <div class="flex items-center gap-3">
+           <button id="mode-toggle" class="px-2 py-1 rounded-md bg-accent/20 border border-accent/40 text-[9px] font-black text-accent uppercase tracking-widest">SUB</button>
+           <button id="search-trigger" class="p-1"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
         </div>
       </header>
 
       <div id="main-content" class="flex-1 overflow-y-auto pb-24 scroll-smooth">
-        <div id="hero-container" class="relative h-[55vh] w-full overflow-hidden">
-           <div id="hero-bg" class="absolute inset-0 bg-gradient-to-t from-bg via-bg/20 to-transparent z-10"></div>
-           <img id="hero-img" class="w-full h-full object-cover" src="" />
-           <div class="absolute bottom-6 inset-x-0 z-20 px-4 flex flex-col items-center text-center">
-              <h2 id="hero-title" class="text-xl font-black uppercase tracking-tighter mb-2 leading-none line-clamp-2"></h2>
-              <div id="hero-genres" class="flex flex-wrap justify-center gap-1 text-[8px] font-bold text-text-dim mb-4 uppercase"></div>
-              <div class="flex items-center gap-2 w-full max-w-[260px]">
-                 <button id="hero-favorite" class="flex-1 py-2 bg-white/5 border border-white/10 rounded-lg font-black text-[9px] uppercase tracking-widest active:scale-95 transition-all">Fav</button>
-                 <button id="hero-play" class="flex-[2] py-2.5 bg-accent text-white rounded-lg font-black text-[10px] uppercase tracking-[0.1em] shadow-lg shadow-accent/40 active:scale-95 transition-all">Watch Now</button>
-              </div>
-           </div>
+        <div id="home-view">
+            <div id="hero-container" class="relative h-[60vh] w-full overflow-hidden">
+               <div id="hero-bg" class="absolute inset-0 bg-gradient-to-t from-bg via-bg/20 to-transparent z-10"></div>
+               <img id="hero-img" class="w-full h-full object-cover" src="" />
+               <div class="absolute bottom-6 inset-x-0 z-20 px-4 flex flex-col items-center text-center">
+                  <h2 id="hero-title" class="text-2xl font-black uppercase tracking-tighter mb-2 leading-none line-clamp-2"></h2>
+                  <div id="hero-genres" class="flex flex-wrap justify-center gap-1 text-[8px] font-bold text-text-dim mb-4 uppercase"></div>
+                  <div class="flex items-center gap-2 w-full max-w-[260px]">
+                     <button id="hero-favorite" class="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl font-black text-[9px] uppercase tracking-widest active:scale-95 transition-all">Fav</button>
+                     <button id="hero-play" class="flex-[2] py-3 bg-accent text-white rounded-xl font-black text-xs uppercase tracking-[0.1em] shadow-lg shadow-accent/40 active:scale-95 transition-all">Watch Now</button>
+                  </div>
+               </div>
+            </div>
+
+            <div class="px-4 py-8 space-y-10">
+               <section id="continue-watching-section" class="hidden">
+                  <div class="flex items-center justify-between mb-4 px-1">
+                     <h3 class="text-[9px] font-black uppercase tracking-[0.2em] text-white/50">Continue Watching</h3>
+                  </div>
+                  <div id="continue-grid" class="flex gap-3 overflow-x-auto pb-4 scroll-hide px-1"></div>
+               </section>
+
+               <section>
+                  <div class="flex items-center justify-between mb-4 px-1">
+                     <h3 class="text-[9px] font-black uppercase tracking-[0.2em] text-white/50">Trending Now</h3>
+                     <span class="text-[8px] font-bold text-accent uppercase">All</span>
+                  </div>
+                  <div id="content-grid" class="flex gap-3 overflow-x-auto pb-4 scroll-hide px-1"></div>
+               </section>
+            </div>
         </div>
 
-        <div class="px-4 py-6 space-y-8">
-           <section>
-              <div class="flex items-center justify-between mb-4 px-1">
-                 <h3 class="text-[9px] font-black uppercase tracking-[0.2em] text-white/40">Trending</h3>
-                 <span class="text-[8px] font-bold text-accent uppercase">All</span>
-              </div>
-              <div id="content-grid" class="flex gap-3 overflow-x-auto pb-4 scroll-hide px-1"></div>
-           </section>
+        <div id="profile-view" class="hidden px-6 py-10 space-y-8">
+            <div class="flex flex-col items-center gap-4 mb-10">
+                <div class="w-20 h-20 rounded-full bg-accent/20 border-2 border-accent/40 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <h2 class="text-xl font-black uppercase tracking-widest">My Profile</h2>
+            </div>
+            
+            <div class="space-y-3">
+                <div class="text-[10px] font-black uppercase tracking-widest text-text-dim px-2">Library</div>
+                <button id="btn-favorites" class="w-full p-4 bg-surface rounded-2xl flex items-center justify-between border border-white/5">
+                    <span class="text-xs font-bold uppercase tracking-wider">Favorites</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+                <button id="btn-history" class="w-full p-4 bg-surface rounded-2xl flex items-center justify-between border border-white/5">
+                    <span class="text-xs font-bold uppercase tracking-wider">Watch History</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+            </div>
+
+            <div class="space-y-3 pt-6">
+                <div class="text-[10px] font-black uppercase tracking-widest text-red-500/50 px-2">Danger Zone</div>
+                <button id="clear-data-btn" class="w-full p-4 bg-red-500/10 rounded-2xl flex items-center justify-between border border-red-500/20 text-red-500">
+                    <span class="text-xs font-black uppercase tracking-widest">Clear User Data</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </button>
+            </div>
         </div>
       </div>
 
@@ -64,7 +102,7 @@ class UIController {
       </nav>
 
       <div id="search-overlay" class="fixed inset-0 z-[100] bg-bg hidden flex-col">
-         <div class="h-14 flex items-center gap-4 px-4 border-b border-border">
+         <div class="h-14 flex items-center gap-4 px-4 border-b border-border bg-sidebar shrink-0">
             <button id="search-close" class="p-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m15 18-6-6 6-6"/></svg></button>
             <input type="text" id="search-input" placeholder="Search anime..." class="flex-1 bg-transparent outline-none font-bold text-xs" />
          </div>
@@ -150,9 +188,14 @@ class UIController {
     }
   }
 
-  renderResults(results, mode, onSelect) {
-    this.grid.innerHTML = '';
-    if (results.length === 0) { this.renderEmpty(); return; }
+  renderResults(results, mode, onSelect, containerId = 'content-grid') {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '';
+    if (results.length === 0) { 
+        if (containerId === 'content-grid') this.renderEmpty("No Results Found"); 
+        return; 
+    }
     
     results.forEach(anime => {
       const card = document.createElement('div');
@@ -169,18 +212,26 @@ class UIController {
              <span class="bg-accent/90 text-[7px] font-black px-1.5 py-0.5 rounded uppercase">${mode}</span>
           </div>
         </div>
-        <div class="mt-2">
+        <div class="mt-2 px-1">
           <h4 class="font-bold text-[9px] md:text-sm truncate uppercase tracking-tight">${anime.name}</h4>
           <span class="text-[7px] md:text-[10px] text-text-dim font-bold uppercase">${anime.genres?.[0] || 'Anime'}</span>
         </div>
       `;
       card.onclick = () => onSelect(anime);
-      this.grid.appendChild(card);
+      container.appendChild(card);
     });
     
     if (!this.isMobile) {
         gsap.from(".anime-card", { opacity: 0, y: 20, duration: 0.6, stagger: 0.05, ease: "power2.out" });
     }
+  }
+
+  showView(viewId) {
+      if (!this.isMobile) return;
+      document.getElementById('home-view').classList.add('hidden');
+      document.getElementById('profile-view').classList.add('hidden');
+      document.getElementById(viewId).classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'instant' });
   }
 
   renderMiniResults(results, onSelect) {

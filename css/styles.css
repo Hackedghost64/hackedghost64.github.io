@@ -87,7 +87,10 @@ input[type="range"]::-webkit-slider-thumb {
     animation: pulse-soft 2s infinite;
 }
 
-/* Touch fixes */
-button:active {
-    transform: scale(0.95);
+#profile-view button:active {
+    @apply bg-white/10 scale-[0.98];
+}
+
+#clear-data-btn:active {
+    @apply bg-red-500/20 scale-[0.98];
 }
