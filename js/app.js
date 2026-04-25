@@ -14,6 +14,7 @@ class AppController {
   init() {
     this.setupEventListeners();
     this.fetchHome();
+    this.setupDataClearing();
   }
 
   loadLocalData() {
@@ -23,6 +24,22 @@ class AppController {
           this.watchlist = JSON.parse(localStorage.getItem('anime-watchlist') || '[]');
       } catch (e) {
           console.error('Failed to load local data', e);
+      }
+  }
+
+  setupDataClearing() {
+      const settingsNav = document.getElementById('nav-history');
+      if (settingsNav) {
+          const clearBtn = document.createElement('div');
+          clearBtn.className = 'nav-item px-4 py-2 mt-4 text-red-400 hover:bg-red-500/10 border-red-500/20 text-xs font-bold uppercase tracking-tighter cursor-pointer';
+          clearBtn.textContent = 'Clear All Data';
+          clearBtn.onclick = () => {
+              if (confirm('Are you sure you want to clear all history, favorites, and watchlist?')) {
+                  localStorage.clear();
+                  window.location.reload();
+              }
+          };
+          settingsNav.parentElement.appendChild(clearBtn);
       }
   }
 
@@ -63,14 +80,6 @@ class AppController {
     modeBtn?.addEventListener('click', () => {
       this.currentMode = this.currentMode === 'sub' ? 'dub' : 'sub';
       this.ui.toggleMode(this.currentMode);
-      
-      const activeTab = document.querySelector('.nav-item.active, .mobile-nav-item.active');
-      if (activeTab) {
-          const id = activeTab.id;
-          if (id.includes('home') || id.includes('trending')) this.fetchHome();
-          else if (id.includes('discover')) this.handleTabClick(id, 'action');
-      }
-
       if (this.selectedAnime) this.loadAnimeDetails(this.selectedAnime);
     });
 
@@ -87,8 +96,8 @@ class AppController {
 
     heroPlay?.addEventListener('click', () => {
         if (this.selectedAnime) {
-            this.loadAnimeDetails(this.selectedAnime);
             this.ui.showPlayer(this.selectedAnime.name);
+            this.loadAnimeDetails(this.selectedAnime);
         }
     });
   }
@@ -131,7 +140,6 @@ class AppController {
       this.ui.renderMiniResults([], () => {});
       return;
     }
-
     const results = await this.api.search(query);
     this.ui.renderMiniResults(results, (anime) => this.selectAnime(anime));
     this.ui.renderResults(results, this.currentMode, (anime) => this.selectAnime(anime));
@@ -139,12 +147,6 @@ class AppController {
 
   async fetchHome() {
     this.ui.setLoading(true);
-    
-    // Inject Continue Watching Row if history exists
-    if (this.history.length > 0) {
-        this.renderContinueWatching();
-    }
-
     const results = await this.api.search('trending');
     this.ui.renderResults(results, this.currentMode, (anime) => this.selectAnime(anime));
     if (results.length > 0) {
@@ -153,51 +155,11 @@ class AppController {
     }
   }
 
-  renderContinueWatching() {
-      const existing = document.getElementById('continue-watching-section');
-      if (existing) existing.remove();
-
-      const section = document.createElement('section');
-      section.id = 'continue-watching-section';
-      section.className = 'mb-8 fade-in';
-      section.innerHTML = `
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-base md:text-lg font-bold flex items-center gap-2">
-            <span class="w-1.5 h-6 bg-accent rounded-full"></span> Continue Watching
-          </h2>
-        </div>
-        <div id="continue-grid" class="flex gap-4 overflow-x-auto pb-4 scroll-hide"></div>
-      `;
-      
-      this.ui.grid.parentElement.insertBefore(section, this.ui.grid.previousElementSibling);
-      const grid = document.getElementById('continue-grid');
-
-      this.history.slice(0, 5).forEach(item => {
-          const card = document.createElement('div');
-          card.className = 'min-w-[240px] md:min-w-[280px] bg-surface border border-border rounded-2xl overflow-hidden cursor-pointer hover:border-accent/50 transition-all group shrink-0';
-          card.innerHTML = `
-            <div class="h-32 relative">
-               <img src="${this.api.getProxyImageUrl(item.image)}" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500" />
-               <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-               <div class="absolute bottom-3 left-3 right-3">
-                  <div class="text-[10px] font-bold text-accent uppercase tracking-widest mb-1">Episode ${item.episode}</div>
-                  <div class="text-sm font-bold truncate">${item.name}</div>
-               </div>
-               <div class="absolute bottom-0 left-0 h-1 bg-accent" style="width: 70%"></div>
-            </div>
-          `;
-          card.onclick = () => this.selectAnime({ id: item.animeId, name: item.name, image: item.image, thumbnail: item.image });
-          grid.appendChild(card);
-      });
-  }
-
   async selectAnime(anime) {
     this.selectedAnime = anime;
     this.ui.updateHero(anime);
-    await this.loadAnimeDetails(anime);
     this.ui.showPlayer(anime.name);
-    
-    // Optimistic Watchlist Update
+    await this.loadAnimeDetails(anime);
     if (!this.watchlist.find(a => a.id === anime.id)) {
         this.watchlist = [anime, ...this.watchlist.slice(0, 49)];
         localStorage.setItem('anime-watchlist', JSON.stringify(this.watchlist));
@@ -207,7 +169,6 @@ class AppController {
   async loadAnimeDetails(anime) {
     const episodes = await this.api.getEpisodes(anime.id, this.currentMode);
     this.ui.renderEpisodes(episodes, (ep) => this.playEpisode(anime.id, ep));
-    
     if (episodes.length > 0) {
         const hist = this.history.find(h => h.animeId === anime.id);
         const startEp = hist ? episodes.find(e => e.number === hist.episode) || episodes[0] : episodes[0];
@@ -255,5 +216,4 @@ class AppController {
     }
   }
 }
-
 export default AppController;

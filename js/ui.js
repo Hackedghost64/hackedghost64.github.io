@@ -15,28 +15,72 @@ class UIController {
     this.heroDescription = document.getElementById('hero-description');
 
     this.setupSearchClear();
+    this.setupMobileNav();
   }
 
   setupSearchClear() {
     const clearBtn = document.createElement('button');
     clearBtn.id = 'search-clear';
-    clearBtn.className = 'absolute right-3 top-1/2 -translate-y-1/2 text-text-dim opacity-0 pointer-events-none transition-all hover:text-white';
+    clearBtn.className = 'absolute right-3 top-1/2 -translate-y-1/2 text-text-dim opacity-0 pointer-events-none transition-all hover:text-white z-10';
     clearBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
-    
     this.searchInput.parentElement.appendChild(clearBtn);
-    
     this.searchInput.addEventListener('input', () => {
         const hasValue = this.searchInput.value.length > 0;
         clearBtn.classList.toggle('opacity-100', hasValue);
         clearBtn.classList.toggle('pointer-events-auto', hasValue);
     });
-
     clearBtn.onclick = () => {
         this.searchInput.value = '';
         this.searchInput.focus();
         clearBtn.classList.remove('opacity-100', 'pointer-events-auto');
         this.miniSearch.classList.add('hidden');
     };
+  }
+
+  setupMobileNav() {
+      const nav = document.querySelector('nav.lg\\:hidden');
+      if (!nav) return;
+      
+      const mainContent = document.getElementById('main-content');
+      mainContent.addEventListener('scroll', () => {
+          const isAtBottom = mainContent.scrollHeight - mainContent.scrollTop <= mainContent.clientHeight + 10;
+          if (isAtBottom) {
+              nav.classList.remove('translate-y-full');
+              nav.classList.add('translate-y-0');
+          } else {
+              nav.classList.add('translate-y-full');
+              nav.classList.remove('translate-y-0');
+          }
+      });
+  }
+
+  renderMiniResults(results, onSelect) {
+    if (results.length === 0) {
+      this.miniSearch.classList.add('hidden');
+      return;
+    }
+    this.miniSearch.innerHTML = '';
+    this.miniSearch.classList.remove('hidden');
+    results.slice(0, 8).forEach(anime => {
+      const item = document.createElement('div');
+      item.className = 'flex items-center gap-4 p-3 hover:bg-white/5 cursor-pointer transition-colors border-b border-border last:border-0';
+      const rawThumb = anime.thumbnail || anime.image;
+      const thumbUrl = rawThumb ? this.getProxyUrl(rawThumb) : `https://placehold.co/100x150/18181b/ffffff?text=Anime`;
+      item.innerHTML = `
+        <img src="${thumbUrl}" class="w-10 h-14 object-cover rounded-lg shadow-sm" />
+        <div class="flex-1 overflow-hidden">
+          <h5 class="text-sm font-bold truncate mb-0.5">${anime.name}</h5>
+          <span class="text-[10px] text-text-dim font-bold uppercase tracking-wider">Episodes Available</span>
+        </div>
+      `;
+      item.onclick = () => {
+        onSelect(anime);
+        this.miniSearch.classList.add('hidden');
+        this.searchInput.value = '';
+        document.getElementById('search-clear').classList.remove('opacity-100', 'pointer-events-auto');
+      };
+      this.miniSearch.appendChild(item);
+    });
   }
 
   setLoading(isLoading) {
@@ -68,72 +112,30 @@ class UIController {
 
   renderResults(results, mode, onSelect) {
     this.grid.innerHTML = '';
-    if (results.length === 0) {
-        this.renderEmpty();
-        return;
-    }
-    
+    if (results.length === 0) { this.renderEmpty(); return; }
     results.forEach((anime, index) => {
       const card = document.createElement('div');
       card.className = 'anime-card group cursor-pointer opacity-0';
-      
       const rawThumb = anime.thumbnail || anime.image;
-      const placeholderUrl = `https://placehold.co/400x600/18181b/ffffff?text=${encodeURIComponent(anime.name)}`;
-      const imageUrl = rawThumb ? this.getProxyUrl(rawThumb) : placeholderUrl;
-      
+      const imageUrl = rawThumb ? this.getProxyUrl(rawThumb) : `https://placehold.co/400x600/18181b/ffffff?text=${encodeURIComponent(anime.name)}`;
       const eps = anime.availableEpisodes ? (anime.availableEpisodes[mode] || 0) : 0;
-
       card.innerHTML = `
-        <div class="aspect-[2/3] relative overflow-hidden bg-surface rounded-2xl shadow-lg group-hover:shadow-accent/20 group-hover:shadow-2xl transition-all duration-500">
-          <img src="${imageUrl}" alt="${anime.name}" 
-               class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-               loading="lazy" 
-               onerror="this.src='${placeholderUrl}'; this.onerror=null;" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <div class="aspect-[2/3] relative overflow-hidden bg-surface rounded-2xl shadow-lg">
+          <img src="${imageUrl}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent opacity-60"></div>
           <div class="absolute bottom-3 left-3 flex gap-2">
              <span class="bg-accent/90 backdrop-blur-md text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-wider shadow-lg">${eps} ${mode.toUpperCase()}</span>
           </div>
         </div>
         <div class="py-4 px-2">
           <h4 class="font-bold text-sm truncate group-hover:text-accent transition-colors mb-1 tracking-tight">${anime.name}</h4>
-          <div class="flex items-center gap-2">
-            <span class="text-[10px] text-text-dim font-bold uppercase tracking-tight">${anime.genres?.[0] || 'Anime'}</span>
-          </div>
+          <span class="text-[10px] text-text-dim font-bold uppercase">${anime.genres?.[0] || 'Anime'}</span>
         </div>
       `;
-
       card.onclick = () => onSelect(anime);
       this.grid.appendChild(card);
     });
-
-    gsap.to(".anime-card", {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        stagger: 0.05,
-        ease: "power3.out",
-        startAt: { y: 30 }
-    });
-  }
-
-  updateHero(anime) {
-      if (anime) {
-          const rawThumb = anime.thumbnail || anime.image;
-          const placeholderUrl = 'https://placehold.co/1200x400/18181b/ffffff?text=Anime+Spotlight';
-          
-          gsap.to("#hero-section", { opacity: 0, duration: 0.3, onComplete: () => {
-              this.heroImg.src = (rawThumb && rawThumb.startsWith('http')) ? this.getProxyUrl(rawThumb) : placeholderUrl;
-              this.heroTitle.textContent = anime.name;
-              this.heroDescription.textContent = anime.description || 'No description available.';
-              
-              let genresHtml = anime.genres?.slice(0, 3).map(g => `<span>${g}</span>`).join('<span>•</span>') || '<span>Trending</span><span>•</span><span>Featured</span>';
-              if (anime.score) genresHtml += `<span>•</span><span class="text-accent font-black glow-text">★ ${anime.score.toFixed(1)}</span>`;
-              this.heroGenres.innerHTML = genresHtml;
-
-              gsap.to("#hero-section", { opacity: 1, duration: 0.5 });
-              gsap.from("#hero-title", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" });
-          }});
-      }
+    gsap.to(".anime-card", { opacity: 1, y: 0, duration: 0.6, stagger: 0.03, ease: "power2.out", startAt: { y: 20 } });
   }
 
   setActiveTab(tabId) {
@@ -144,114 +146,60 @@ class UIController {
       });
   }
 
-  renderMiniResults(results, onSelect) {
-    if (results.length === 0) {
-      this.miniSearch.classList.add('hidden');
-      return;
-    }
-
-    this.miniSearch.innerHTML = '';
-    this.miniSearch.classList.remove('hidden');
-
-    results.slice(0, 8).forEach(anime => {
-      const item = document.createElement('div');
-      item.className = 'flex items-center gap-4 p-3 hover:bg-white/5 cursor-pointer transition-colors border-b border-border last:border-0';
-      const rawThumb = anime.thumbnail || anime.image;
-      const thumbUrl = rawThumb ? this.getProxyUrl(rawThumb) : `https://placehold.co/100x150/18181b/ffffff?text=Anime`;
-      const eps = anime.availableEpisodes ? (Object.values(anime.availableEpisodes)[0] || 0) : 0;
-      
-      item.innerHTML = `
-        <img src="${thumbUrl}" class="w-10 h-14 object-cover rounded-lg shadow-sm" />
-        <div class="flex-1 overflow-hidden">
-          <h5 class="text-sm font-bold truncate mb-0.5">${anime.name}</h5>
-          <span class="text-[10px] text-text-dim font-bold uppercase tracking-wider">${eps} Episodes</span>
-        </div>
-      `;
-      item.onclick = () => {
-        onSelect(anime);
-        this.miniSearch.classList.add('hidden');
-        this.searchInput.value = '';
-        document.getElementById('search-clear').classList.remove('opacity-100', 'pointer-events-auto');
-      };
-      this.miniSearch.appendChild(item);
-    });
-  }
-
   renderEpisodes(episodes, onSelect) {
     this.episodesList.innerHTML = '';
     this.episodesCount.textContent = `${episodes.length} ITEMS`;
-
-    episodes.forEach((ep, index) => {
+    episodes.forEach((ep) => {
       const btn = document.createElement('button');
-      btn.className = 'w-full flex items-center gap-4 p-3 rounded-xl hover:bg-surface border border-transparent hover:border-border transition-all text-left group fade-in';
-      btn.style.animationDelay = `${index * 30}ms`;
+      btn.className = 'episode-btn w-full flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-left group';
       btn.innerHTML = `
-        <div class="w-10 h-10 rounded-lg bg-surface border border-border flex items-center justify-center text-xs font-bold group-hover:text-accent transition-colors">
+        <div class="w-12 h-12 rounded-xl bg-surface border border-white/10 flex items-center justify-center text-sm font-black group-hover:text-accent group-hover:border-accent transition-all">
           ${ep.number}
         </div>
         <div class="flex-1 overflow-hidden">
-          <div class="text-[13px] font-bold truncate tracking-tight text-white/90 group-hover:text-white">${ep.title || `Episode ${ep.number}`}</div>
-          <div class="text-[10px] text-text-dim font-bold uppercase mt-0.5">Stream Quality: HD</div>
+          <div class="text-sm font-bold truncate text-white/90 group-hover:text-white">${ep.title || `Episode ${ep.number}`}</div>
+          <div class="text-[9px] text-text-dim font-black uppercase tracking-widest mt-1">Ready to Stream</div>
         </div>
       `;
       btn.onclick = () => {
-        const actives = this.episodesList.querySelectorAll('.border-accent');
-        actives.forEach(a => {
-            a.classList.remove('bg-accent/10', 'border-accent');
-            a.classList.add('hover:bg-surface', 'border-transparent');
-        });
-        btn.classList.add('bg-accent/10', 'border-accent');
-        btn.classList.remove('hover:bg-surface', 'border-transparent');
+        const actives = this.episodesList.querySelectorAll('.episode-btn.active');
+        actives.forEach(a => a.classList.remove('active'));
+        btn.classList.add('active');
         onSelect(ep);
       };
       this.episodesList.appendChild(btn);
     });
+    gsap.fromTo(this.episodesList.children, { opacity: 0, x: 20 }, { opacity: 1, x: 0, stagger: 0.02, duration: 0.5, ease: "power2.out", clearProps: "all" });
   }
 
   showPlayer(title) {
     this.playerOverlay.classList.remove('hidden');
+    this.playerOverlay.style.display = 'flex';
     this.playerTitle.textContent = title;
-    document.title = `Watching: ${title} | AnimeVerse`;
+    document.title = `Watching: ${title}`;
     document.body.style.overflow = 'hidden';
+    gsap.fromTo(this.playerOverlay, { opacity: 0, scale: 1.1, filter: "blur(20px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.5, ease: "power4.out" });
   }
 
   hidePlayer() {
-    this.playerOverlay.classList.add('hidden');
-    document.title = 'AnimeVerse - Discover Premium Anime Content';
-    document.body.style.overflow = 'auto';
+    gsap.to(this.playerOverlay, { opacity: 0, scale: 1.05, duration: 0.3, ease: "power3.in", onComplete: () => {
+        this.playerOverlay.classList.add('hidden');
+        document.title = 'AnimeVerse';
+        document.body.style.overflow = 'auto';
+    }});
   }
 
   updateHero(anime) {
-      if (anime) {
-          const rawThumb = anime.thumbnail || anime.image;
-          const placeholderUrl = 'https://placehold.co/1200x400/18181b/ffffff?text=Anime+Spotlight';
-          
-          this.heroImg.onerror = () => {
-              this.heroImg.src = placeholderUrl;
-              this.heroImg.onerror = null;
-          };
-
-          if (rawThumb && rawThumb.startsWith('http')) {
-              this.heroImg.src = this.getProxyUrl(rawThumb);
-          } else {
-              this.heroImg.src = placeholderUrl;
-          }
+      if (!anime) return;
+      const rawThumb = anime.thumbnail || anime.image;
+      const imageUrl = rawThumb ? this.getProxyUrl(rawThumb) : '';
+      gsap.to("#hero-section", { opacity: 0, duration: 0.3, onComplete: () => {
+          this.heroImg.src = imageUrl;
           this.heroTitle.textContent = anime.name;
-          this.heroDescription.textContent = anime.description || 'No description available.';
-          
-          let genresHtml = '';
-          if (anime.genres && anime.genres.length > 0) {
-              genresHtml = anime.genres.slice(0, 3).map(g => `<span>${g}</span>`).join('<span>•</span>');
-          } else {
-              genresHtml = '<span>Trending</span><span>•</span><span>Featured</span><span>•</span><span>Series</span>';
-          }
-          
-          if (anime.score) {
-              genresHtml += `<span>•</span><span class="text-accent font-bold">★ ${anime.score.toFixed(1)}</span>`;
-          }
-          
-          this.heroGenres.innerHTML = genresHtml;
-      }
+          this.heroDescription.textContent = anime.description || '';
+          this.heroGenres.innerHTML = anime.genres?.slice(0, 3).map(g => `<span>${g}</span>`).join('•') || '';
+          gsap.to("#hero-section", { opacity: 1, duration: 0.5 });
+      }});
   }
 
   toggleMode(mode) {
@@ -259,5 +207,4 @@ class UIController {
       this.modeBtn.style.color = mode === 'dub' ? '#8b5cf6' : '#fff';
   }
 }
-
 export default UIController;
