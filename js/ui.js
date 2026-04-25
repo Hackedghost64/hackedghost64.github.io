@@ -214,8 +214,10 @@ class UIController {
   hidePlayer() {
     gsap.to(this.playerOverlay, { opacity: 0, scale: 1.05, duration: 0.3, ease: "power3.in", onComplete: () => {
         this.playerOverlay.classList.add('hidden');
+        this.playerOverlay.style.display = 'none'; // Force hide
         document.title = 'AnimeVerse';
         document.body.style.overflow = 'auto';
+        document.body.classList.remove('locked');
     }});
   }
 

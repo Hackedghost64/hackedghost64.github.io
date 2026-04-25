@@ -216,13 +216,25 @@ class PlayerManager {
 
     saveProgress() {
         if (!this.videoElement || !this.currentOptions?.animeId) return;
-        localStorage.setItem(`progress-${this.currentOptions.animeId}-${this.currentOptions.episodeNumber}`, this.videoElement.currentTime);
+        const key = `progress-${this.currentOptions.animeId}-${this.currentOptions.episodeNumber}`;
+        localStorage.setItem(key, this.videoElement.currentTime);
+        
+        // Cleanup old progress items (keep last 100)
+        let allKeys = Object.keys(localStorage).filter(k => k.startsWith('progress-'));
+        if (allKeys.length > 100) {
+            allKeys.sort(); // Very basic cleanup
+            localStorage.removeItem(allKeys[0]);
+        }
     }
 
     loadProgress() {
         if (!this.videoElement || !this.currentOptions?.animeId) return;
-        const saved = localStorage.getItem(`progress-${this.currentOptions.animeId}-${this.currentOptions.episodeNumber}`);
-        if (saved) { this.videoElement.currentTime = parseFloat(saved); this.showSkipIndicator(`Resumed at ${this.formatTime(saved)}`, 'center'); }
+        const key = `progress-${this.currentOptions.animeId}-${this.currentOptions.episodeNumber}`;
+        const saved = localStorage.getItem(key);
+        if (saved && parseFloat(saved) > 5) { // Only resume if past 5 seconds
+            this.videoElement.currentTime = parseFloat(saved); 
+            this.showSkipIndicator(`Resumed at ${this.formatTime(saved)}`, 'center'); 
+        }
     }
 
     handleShare() {
@@ -273,9 +285,23 @@ class PlayerManager {
         }
     }
 
-    togglePlay() { if (!this.videoElement) return; if (this.videoElement.paused) this.videoElement.play(); else this.videoElement.pause(); }
+    togglePlay() { 
+        if (!this.videoElement) return; 
+        if (this.videoElement.paused) {
+            this.videoElement.play(); 
+            this.showSkipIndicator('PLAY', 'center');
+        } else {
+            this.videoElement.pause(); 
+            this.showSkipIndicator('PAUSE', 'center');
+        }
+    }
 
-    toggleMute() { if (!this.videoElement) return; this.videoElement.muted = !this.videoElement.muted; this.updateVolumeIcon(this.videoElement.muted ? 0 : this.volume); }
+    toggleMute() { 
+        if (!this.videoElement) return; 
+        this.videoElement.muted = !this.videoElement.muted; 
+        this.updateVolumeIcon(this.videoElement.muted ? 0 : this.volume); 
+        this.showSkipIndicator(this.videoElement.muted ? 'MUTED' : 'UNMUTED', 'center');
+    }
 
     updateVolumeIcon(vol) {
         const btn = document.getElementById('player-vol-btn');
@@ -287,7 +313,9 @@ class PlayerManager {
         const speeds = [1, 1.25, 1.5, 2]; let current = speeds.indexOf(this.playbackRate);
         this.playbackRate = speeds[(current + 1) % speeds.length];
         this.videoElement.playbackRate = this.playbackRate;
-        localStorage.setItem('player-speed', this.playbackRate); btn.textContent = this.playbackRate + 'X';
+        localStorage.setItem('player-speed', this.playbackRate); 
+        btn.textContent = this.playbackRate + 'X';
+        this.showSkipIndicator(`SPEED: ${this.playbackRate}X`, 'center');
     }
 
     formatTime(s) {
@@ -315,7 +343,11 @@ class PlayerManager {
         } else { if (document.exitFullscreen) document.exitFullscreen(); }
     }
 
-    toggleTheaterMode() { this.isTheaterMode = !this.isTheaterMode; this.container.classList.toggle('theater-mode', this.isTheaterMode); }
+    toggleTheaterMode() { 
+        this.isTheaterMode = !this.isTheaterMode; 
+        document.getElementById('video-container')?.classList.toggle('theater-mode', this.isTheaterMode);
+        this.showSkipIndicator(this.isTheaterMode ? 'THEATER ON' : 'THEATER OFF', 'center');
+    }
 
     createIconButton(icon, onClick, title, id = null) {
         const btn = document.createElement('button');

@@ -25,7 +25,17 @@ body.locked {
 /* Better Z-indexing */
 header { position: relative; z-index: 60; }
 #search-results-mini { z-index: 100; position: absolute; width: 100%; }
-#player-overlay { z-index: 200; height: 100dvh; }
+#player-overlay { z-index: 200; height: 100dvh; display: none; }
+#player-overlay:not(.hidden) { display: flex; }
+
+/* Theater Mode */
+#video-container.theater-mode {
+    width: 100% !important;
+    max-height: 80vh;
+}
+.theater-mode + #episodes-sidebar {
+    display: none;
+}
 
 /* UI Enhancements */
 .glass-panel {

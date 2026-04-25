@@ -101,6 +101,8 @@ class AppController {
     closePlayer?.addEventListener('click', () => {
       this.ui.hidePlayer();
       this.player.clear();
+      // Also ensure theater mode is off when closing
+      document.getElementById('video-container')?.classList.remove('theater-mode');
     });
 
     logoContainer?.addEventListener('click', () => {
