@@ -198,6 +198,7 @@ input[type="range"].player-slider:hover::-webkit-slider-thumb {
   background: rgba(139, 92, 246, 0.2);
   border-radius: 50%;
   pointer-events: none;
+  z-index: 45;
   animation: rippleOut 0.8s ease-out forwards;
 }
 

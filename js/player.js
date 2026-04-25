@@ -21,7 +21,7 @@ class PlayerManager {
             sub: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M7 8h10"/><path d="M7 12h10"/></svg>',
             volumeHigh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>',
             volumeMute: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>',
-            settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+            settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
             download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
             theater: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect width="20" height="15" x="2" y="4.5" rx="2"/><path d="M2 15h20"/></svg>',
             skipForward: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M13 19l6-7-6-7"/><path d="M5 19l6-7-6-7"/></svg>'
@@ -31,6 +31,40 @@ class PlayerManager {
         if (!el) throw new Error(`[Trace] Container #${containerId} not found`);
         this.container = el;
         this.container.classList.add('relative', 'group', 'bg-black', 'overflow-hidden');
+
+        this.initInteractionEvents();
+    }
+
+    initInteractionEvents() {
+        // Desktop double click
+        this.container.addEventListener('dblclick', (e) => {
+            if (e.target.closest('button') || e.target.closest('input') || !this.videoElement) return;
+            const rect = this.container.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            this.handleSkipAt(x, rect.width);
+        });
+
+        // Click to toggle play (only if not clicking a control)
+        this.container.addEventListener('click', (e) => {
+            if (e.target.closest('button') || e.target.closest('input') || !this.videoElement) return;
+            this.togglePlay();
+        });
+
+        // Mobile double tap detection
+        let lastTap = 0;
+        this.container.addEventListener('touchstart', (e) => {
+            if (e.target.closest('button') || e.target.closest('input') || !this.videoElement) return;
+            
+            const now = Date.now();
+            const timeDiff = now - lastTap;
+            if (timeDiff < 300 && timeDiff > 0) {
+                e.preventDefault();
+                const rect = this.container.getBoundingClientRect();
+                const x = e.touches[0].clientX - rect.left;
+                this.handleSkipAt(x, rect.width);
+            }
+            lastTap = now;
+        }, { passive: false });
     }
 
     play(options) {
@@ -316,7 +350,6 @@ class PlayerManager {
                 break;
         }
 
-        // Numbers 0-9 to skip %
         if (e.keyCode >= 48 && e.keyCode <= 57) {
             const percent = (e.keyCode - 48) * 10;
             this.videoElement.currentTime = (percent / 100) * this.videoElement.duration;
@@ -372,32 +405,6 @@ class PlayerManager {
         const m = Math.floor((s % 3600) / 60);
         const sec = Math.floor(s % 60);
         return (h > 0 ? h + ":" : "") + (m < 10 ? "0" + m : m) + ":" + (sec < 10 ? "0" + sec : sec);
-    }
-
-    setupInteractions() {
-        if (!this.videoElement) return;
-        
-        // Desktop double click
-        this.videoElement.onclick = () => this.togglePlay();
-        this.videoElement.ondblclick = (e) => {
-            const rect = this.videoElement.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            this.handleSkipAt(x, rect.width);
-        };
-
-        // Mobile double tap detection
-        let lastTap = 0;
-        this.videoElement.addEventListener('touchstart', (e) => {
-            const now = Date.now();
-            const timeDiff = now - lastTap;
-            if (timeDiff < 300 && timeDiff > 0) {
-                e.preventDefault();
-                const rect = this.videoElement.getBoundingClientRect();
-                const x = e.touches[0].clientX - rect.left;
-                this.handleSkipAt(x, rect.width);
-            }
-            lastTap = now;
-        }, { passive: false });
     }
 
     handleSkipAt(x, width) {
@@ -459,6 +466,10 @@ class PlayerManager {
             onClick();
         };
         return btn;
+    }
+
+    setupInteractions() {
+        // Interactions are now initialized in constructor via initInteractionEvents
     }
 
     mountIframe(url) {
