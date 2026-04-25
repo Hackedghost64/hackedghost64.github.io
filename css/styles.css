@@ -99,6 +99,27 @@ nav.lg\:hidden.translate-y-0 {
 }
 .corner-tip:hover { opacity: 0.8; filter: blur(2px); scale: 1.5; }
 
+/* 3D Vortex & Hyperspeed */
+.vortex-ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 500px; height: 500px;
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) translate3d(0, 0, -3000px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.hyperspeed-streak-3d {
+    position: absolute;
+    width: 2px; height: 150px;
+    background: linear-gradient(to top, transparent, var(--accent), #fff);
+    opacity: 0;
+    pointer-events: none;
+    transform-style: preserve-3d;
+}
+
 /* Player Specifics */
 @media (max-width: 768px) {
   #video-container { height: auto; aspect-ratio: 16/9; }

@@ -248,6 +248,23 @@ class UIController {
           }
       });
 
+      // Cool background ripple
+      const ripple = document.createElement('div');
+      ripple.className = `fixed inset-0 z-0 pointer-events-none opacity-20 ${isDub ? 'bg-accent' : 'bg-white'}`;
+      document.body.appendChild(ripple);
+      gsap.fromTo(ripple, { scale: 0, opacity: 0.5 }, { scale: 4, opacity: 0, duration: 1, ease: "expo.out", onComplete: () => ripple.remove() });
+
+      // Animate existing cards to show they changed
+      gsap.to(".anime-card", {
+          scale: 0.95,
+          opacity: 0.5,
+          duration: 0.2,
+          yoyo: true,
+          repeat: 1,
+          stagger: { amount: 0.3, from: "center" },
+          ease: "power2.inOut"
+      });
+
       // Create a "cool" on-screen notification
       const notify = document.createElement('div');
       notify.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1000] pointer-events-none';

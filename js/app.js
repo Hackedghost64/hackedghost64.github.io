@@ -85,6 +85,16 @@ class AppController {
     modeBtn?.addEventListener('click', () => {
       this.currentMode = this.currentMode === 'sub' ? 'dub' : 'sub';
       this.ui.toggleMode(this.currentMode);
+      // Refresh current view to update episode counts on cards
+      const activeTab = document.querySelector('.nav-item.active, .mobile-nav-item.active');
+      if (activeTab) {
+          const tabId = activeTab.id;
+          if (tabId.includes('home')) this.fetchHome();
+          else if (tabId.includes('history')) this.renderHistoryList();
+          else if (tabId.includes('library') || tabId.includes('watching')) this.renderLocalList(tabId, this.watchlist, 'Empty');
+          else if (tabId.includes('favorites')) this.renderLocalList(tabId, this.favorites, 'Empty');
+          else if (tabId.includes('discover') || tabId.includes('trending')) this.handleTabClick(tabId, tabId.includes('discover') ? 'action' : 'trending');
+      }
       if (this.selectedAnime) this.loadAnimeDetails(this.selectedAnime);
     });
 

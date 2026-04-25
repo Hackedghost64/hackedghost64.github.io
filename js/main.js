@@ -67,42 +67,78 @@ function runCinematicSequence() {
     function triggerHyperspeed() {
         const exitTl = gsap.timeline();
         const vortexContainer = document.getElementById('vortex-container');
-        const ringCount = IS_MOBILE ? 15 : 40;
+        vortexContainer.style.perspective = "1000px";
+        
+        const ringCount = IS_MOBILE ? 20 : 60;
         for(let i=0; i<ringCount; i++) {
             const ring = document.createElement('div');
             ring.className = 'vortex-ring';
-            ring.style.width = '10px'; ring.style.height = '10px';
+            ring.style.borderColor = i % 2 === 0 ? 'var(--accent)' : '#fff';
             vortexContainer.appendChild(ring);
-            exitTl.fromTo(ring, { scale: 0, opacity: 0, z: -2500 }, { scale: 300, opacity: 1, z: 2500, duration: 2.8, ease: "power2.in", delay: i * 0.04 }, 0);
+            
+            exitTl.fromTo(ring, 
+                { scale: 0, opacity: 0, z: -3000, rotationZ: Math.random() * 360 }, 
+                { 
+                    scale: 40, 
+                    opacity: 1, 
+                    z: 1000, 
+                    duration: 3, 
+                    ease: "power2.in", 
+                    delay: i * 0.05,
+                    onStart: () => ring.style.opacity = "1"
+                }, 0);
         }
-        for(let i=0; i<(IS_MOBILE?30:100); i++) {
+
+        const streakCount = IS_MOBILE ? 40 : 120;
+        for(let i=0; i<streakCount; i++) {
             const streak = document.createElement('div');
-            streak.className = 'hyperspeed-streak';
-            streak.style.left = Math.random() * 100 + '%';
-            streak.style.top = Math.random() * 100 + '%';
-            streak.style.transform = `rotate(${Math.random() * 360}deg)`;
+            streak.className = 'hyperspeed-streak-3d';
+            const angle = Math.random() * Math.PI * 2;
+            const radius = 200 + Math.random() * 1000;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            
+            streak.style.left = '50%';
+            streak.style.top = '50%';
+            streak.style.transform = `translate(-50%, -50%) translate3d(${x}px, ${y}px, -3000px) rotate(${angle}rad)`;
+            
             document.getElementById('intro-page').appendChild(streak);
-            exitTl.fromTo(streak, { scale: 0, opacity: 0, z: -1000 }, { scale: 30, opacity: 1, z: 2000, duration: 2, ease: "power4.in", delay: Math.random() * 0.5 }, 0.1);
+            
+            exitTl.to(streak, {
+                z: 2000,
+                opacity: 1,
+                duration: 2,
+                ease: "power4.in",
+                delay: Math.random() * 1.5,
+                startAt: { z: -3000, opacity: 0 }
+            }, 0.1);
         }
-        exitTl.to("#final-portal", { scale: 200, opacity: 0, duration: 1.8, ease: "power4.in" }, 0.5);
+
+        exitTl.to("#final-portal", { scale: 0, opacity: 0, duration: 1.2, ease: "power4.in" }, 0.2);
+        exitTl.to("#intro-content", { scale: 1.5, opacity: 0, filter: "blur(20px)", duration: 1, ease: "power2.in" }, 0);
+        
         exitTl.call(() => {
             const root = document.getElementById('root');
             root.style.opacity = '1'; root.style.transform = 'scale(1)';
             gsap.set("aside, header, #main-content", { opacity: 0 });
-        }, null, 2.0);
-        exitTl.to("#intro-page", { opacity: 0, duration: 0.6 }, 2.0);
-        exitTl.to("aside", { x: 0, opacity: 1, duration: 1, ease: "power3.out", startAt: {x: -300} }, 2.2);
-        exitTl.to("header", { y: 0, opacity: 1, duration: 1, ease: "power3.out", startAt: {y: -100} }, 2.3);
-        exitTl.to("#main-content", { opacity: 1, y: 0, duration: 1.2, ease: "expo.out", startAt: {y: 50} }, 2.4);
+        }, null, 2.5);
+        
+        exitTl.to("#flash-overlay", { opacity: 1, duration: 0.1 }, 2.5);
+        exitTl.to("#flash-overlay", { opacity: 0, duration: 1, ease: "power2.out" }, 2.6);
+        exitTl.to("#intro-page", { opacity: 0, duration: 0.8 }, 2.6);
+        
+        exitTl.to("aside", { x: 0, opacity: 1, duration: 1, ease: "power3.out", startAt: {x: -300} }, 2.8);
+        exitTl.to("header", { y: 0, opacity: 1, duration: 1, ease: "power3.out", startAt: {y: -100} }, 2.9);
+        exitTl.to("#main-content", { opacity: 1, y: 0, duration: 1.2, ease: "expo.out", startAt: {y: 50} }, 3.0);
         exitTl.from(".anime-card", { 
-            scale: 0, opacity: 0, stagger: 0.015, duration: 1, ease: "back.out(1.5)",
+            scale: 0.8, opacity: 0, stagger: 0.02, duration: 0.8, ease: "power2.out",
             onComplete: () => {
                 document.body.classList.remove('locked');
                 document.getElementById('root').style.pointerEvents = 'auto';
                 document.getElementById('intro-page')?.remove();
                 document.getElementById('splash-screen')?.remove();
             }
-        }, 2.6);
+        }, 3.2);
     }
 }
 
