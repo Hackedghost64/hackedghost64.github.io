@@ -75,8 +75,7 @@ class UIController {
     
     results.forEach((anime, index) => {
       const card = document.createElement('div');
-      card.className = 'anime-card group cursor-pointer fade-in transition-all';
-      card.style.animationDelay = `${index * 50}ms`;
+      card.className = 'anime-card group cursor-pointer opacity-0';
       
       const rawThumb = anime.thumbnail || anime.image;
       const placeholderUrl = `https://placehold.co/400x600/18181b/ffffff?text=${encodeURIComponent(anime.name)}`;
@@ -90,13 +89,13 @@ class UIController {
                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                loading="lazy" 
                onerror="this.src='${placeholderUrl}'; this.onerror=null;" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div class="absolute bottom-3 left-3 flex gap-2">
-             <span class="bg-accent text-[10px] font-extrabold px-2 py-1 rounded-md uppercase tracking-wider shadow-lg">${eps} ${mode.toUpperCase()}</span>
+             <span class="bg-accent/90 backdrop-blur-md text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-wider shadow-lg">${eps} ${mode.toUpperCase()}</span>
           </div>
         </div>
         <div class="py-4 px-2">
-          <h4 class="font-bold text-sm truncate group-hover:text-accent transition-colors mb-1">${anime.name}</h4>
+          <h4 class="font-bold text-sm truncate group-hover:text-accent transition-colors mb-1 tracking-tight">${anime.name}</h4>
           <div class="flex items-center gap-2">
             <span class="text-[10px] text-text-dim font-bold uppercase tracking-tight">${anime.genres?.[0] || 'Anime'}</span>
           </div>
@@ -106,6 +105,35 @@ class UIController {
       card.onclick = () => onSelect(anime);
       this.grid.appendChild(card);
     });
+
+    gsap.to(".anime-card", {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        stagger: 0.05,
+        ease: "power3.out",
+        startAt: { y: 30 }
+    });
+  }
+
+  updateHero(anime) {
+      if (anime) {
+          const rawThumb = anime.thumbnail || anime.image;
+          const placeholderUrl = 'https://placehold.co/1200x400/18181b/ffffff?text=Anime+Spotlight';
+          
+          gsap.to("#hero-section", { opacity: 0, duration: 0.3, onComplete: () => {
+              this.heroImg.src = (rawThumb && rawThumb.startsWith('http')) ? this.getProxyUrl(rawThumb) : placeholderUrl;
+              this.heroTitle.textContent = anime.name;
+              this.heroDescription.textContent = anime.description || 'No description available.';
+              
+              let genresHtml = anime.genres?.slice(0, 3).map(g => `<span>${g}</span>`).join('<span>•</span>') || '<span>Trending</span><span>•</span><span>Featured</span>';
+              if (anime.score) genresHtml += `<span>•</span><span class="text-accent font-black glow-text">★ ${anime.score.toFixed(1)}</span>`;
+              this.heroGenres.innerHTML = genresHtml;
+
+              gsap.to("#hero-section", { opacity: 1, duration: 0.5 });
+              gsap.from("#hero-title", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" });
+          }});
+      }
   }
 
   setActiveTab(tabId) {

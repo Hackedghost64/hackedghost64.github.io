@@ -37,21 +37,50 @@ body {
 .anime-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.anime-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.15), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.6s;
 }
 
 @media (min-width: 768px) {
-  .anime-card {
-      border-radius: 20px;
-  }
   .anime-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      border-color: rgba(139, 92, 246, 0.5);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(139, 92, 246, 0.2);
+      transform: translateY(-12px) scale(1.03);
+      border-color: rgba(139, 92, 246, 0.4);
+      box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7), 0 0 20px rgba(139, 92, 246, 0.1);
+  }
+  .anime-card:hover::after {
+      opacity: 1;
   }
 }
+
+.glow-text {
+  text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+}
+
+.glass-premium {
+  background: rgba(15, 15, 17, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.scroll-hide::-webkit-scrollbar {
+  display: none;
+}
+.scroll-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 
 .mobile-nav-item {
   @apply transition-all duration-300 active:scale-90 text-text-dim flex flex-col items-center gap-1;
