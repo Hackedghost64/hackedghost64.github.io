@@ -19,7 +19,8 @@ class PlayerManager {
             volumeMute: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>',
             settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
             download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
-            theater: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect width="20" height="15" x="2" y="4.5" rx="2"/><path d="M2 15h20"/></svg>'
+            theater: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect width="20" height="15" x="2" y="4.5" rx="2"/><path d="M2 15h20"/></svg>',
+            share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>'
         };
         const el = document.getElementById(containerId);
         if (!el) throw new Error(`Container #${containerId} not found`);
@@ -161,6 +162,7 @@ class PlayerManager {
         speedBtn.className = 'text-[10px] font-black w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all';
         speedBtn.textContent = this.playbackRate + 'X'; speedBtn.onclick = () => this.cycleSpeed(speedBtn);
         rightGroup.appendChild(speedBtn);
+        rightGroup.appendChild(this.createIconButton(this.icons.share, () => this.handleShare(), 'Share'));
         rightGroup.appendChild(this.createIconButton(this.icons.download, () => this.handleDownload(), 'Download'));
         rightGroup.appendChild(this.createIconButton(this.icons.theater, () => this.toggleTheaterMode(), 'Theater'));
         rightGroup.appendChild(this.createIconButton(this.icons.settings, () => this.toggleSettings(), 'Settings'));
@@ -221,6 +223,20 @@ class PlayerManager {
         if (!this.videoElement || !this.currentOptions?.animeId) return;
         const saved = localStorage.getItem(`progress-${this.currentOptions.animeId}-${this.currentOptions.episodeNumber}`);
         if (saved) { this.videoElement.currentTime = parseFloat(saved); this.showSkipIndicator(`Resumed at ${this.formatTime(saved)}`, 'center'); }
+    }
+
+    handleShare() {
+        const text = `Check out this anime on AnimeVerse!`;
+        const url = window.location.href;
+        if (navigator.share) {
+            navigator.share({ title: 'AnimeVerse', text: text, url: url }).catch(() => {
+                navigator.clipboard.writeText(url);
+                this.showSkipIndicator('Link Copied!', 'center');
+            });
+        } else {
+            navigator.clipboard.writeText(url);
+            this.showSkipIndicator('Link Copied!', 'center');
+        }
     }
 
     handleDownload() {

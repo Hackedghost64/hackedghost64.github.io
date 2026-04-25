@@ -117,10 +117,19 @@
                     <div id="hero-genres" class="flex flex-wrap gap-2 md:gap-4 text-[10px] md:text-xs text-white/70 mb-2 md:mb-3 font-medium"><span>Action</span><span>•</span><span>Fantasy</span></div>
                     <h2 id="hero-title" class="text-2xl md:text-5xl font-extrabold mb-3 md:mb-4 leading-tight line-clamp-2">Discover Premium Anime Content</h2>
                     <p id="hero-description" class="text-white/60 text-xs md:text-sm mb-4 md:mb-6 line-clamp-2 md:line-clamp-3 max-w-lg font-medium hidden xs:block"></p>
-                    <div class="flex items-center gap-4"><button id="hero-play" class="bg-accent text-white px-6 py-2.5 md:px-8 md:py-3 rounded-xl font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-accent/20 text-sm md:text-base">Watch Now</button></div>
+                    <div class="flex items-center gap-4">
+                      <button id="hero-play" class="bg-accent text-white px-6 py-2.5 md:px-8 md:py-3 rounded-xl font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-accent/20 text-sm md:text-base">Watch Now</button>
+                      <button id="hero-favorite" class="glass w-11 h-11 md:w-12 md:h-12 rounded-xl flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all group" title="Add to Favorites">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="group-[.is-favorite]:fill-red-500 group-[.is-favorite]:stroke-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                      </button>
+                    </div>
                   </div>
                </div>
             </section>
+            
+            <button id="back-to-top" class="fixed bottom-24 right-6 lg:bottom-10 lg:right-10 w-12 h-12 bg-surface border border-border rounded-full flex items-center justify-center opacity-0 pointer-events-none transition-all hover:bg-accent hover:border-accent z-40 shadow-2xl">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+            </button>
             <div class="flex items-center justify-between mb-4 md:mb-6">
               <h2 class="text-base md:text-lg font-bold">Recent Updates</h2>
               <span class="text-[10px] md:text-xs font-bold text-accent cursor-pointer hover:underline uppercase tracking-wide">View All</span>

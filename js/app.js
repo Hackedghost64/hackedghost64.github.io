@@ -49,6 +49,11 @@ class AppController {
     const closePlayer = document.getElementById('close-player');
     const logoContainer = document.getElementById('logo-container');
     const heroPlay = document.getElementById('hero-play');
+    const heroFavorite = document.getElementById('hero-favorite');
+
+    heroFavorite?.addEventListener('click', () => {
+        this.toggleFavorite(this.selectedAnime);
+    });
 
     const tabs = {
         'nav-home': () => this.fetchHome(),
@@ -122,17 +127,20 @@ class AppController {
 
   renderHistoryList() {
       this.ui.setActiveTab('nav-history');
+      if (this.history.length === 0) {
+          this.ui.renderEmpty('No history recorded');
+          return;
+      }
       const transformedList = this.history.map(h => ({
           id: h.animeId,
-          name: `${h.name} - Ep ${h.episode}`,
+          name: h.name,
           image: h.image,
-          thumbnail: h.image
+          thumbnail: h.image,
+          lastEpisode: h.episode
       }));
       this.ui.renderResults(transformedList, this.currentMode, (anime) => {
-          const original = this.history.find(h => h.animeId === anime.id || anime.name.includes(h.name));
-          if (original) this.selectAnime({ id: original.animeId, name: original.name, image: original.image, thumbnail: original.image });
+          this.selectAnime({ id: anime.id, name: anime.name, image: anime.image, thumbnail: anime.image });
       });
-      if (this.history.length === 0) this.ui.renderEmpty('No history recorded');
   }
 
   async handleSearch(query) {
@@ -152,18 +160,32 @@ class AppController {
     if (results.length > 0) {
         this.selectedAnime = results[0];
         this.ui.updateHero(results[0]);
+        this.ui.setFavoriteStatus(this.favorites.some(f => f.id === results[0].id));
     }
   }
 
   async selectAnime(anime) {
     this.selectedAnime = anime;
     this.ui.updateHero(anime);
+    this.ui.setFavoriteStatus(this.favorites.some(f => f.id === anime.id));
     this.ui.showPlayer(anime.name);
     await this.loadAnimeDetails(anime);
     if (!this.watchlist.find(a => a.id === anime.id)) {
         this.watchlist = [anime, ...this.watchlist.slice(0, 49)];
         localStorage.setItem('anime-watchlist', JSON.stringify(this.watchlist));
     }
+  }
+
+  toggleFavorite(anime) {
+      if (!anime) return;
+      const index = this.favorites.findIndex(f => f.id === anime.id);
+      if (index === -1) {
+          this.favorites.push(anime);
+      } else {
+          this.favorites.splice(index, 1);
+      }
+      localStorage.setItem('anime-favorites', JSON.stringify(this.favorites));
+      this.ui.setFavoriteStatus(index === -1);
   }
 
   async loadAnimeDetails(anime) {

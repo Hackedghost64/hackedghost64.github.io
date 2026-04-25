@@ -13,9 +13,31 @@ class UIController {
     this.heroTitle = document.getElementById('hero-title');
     this.heroGenres = document.getElementById('hero-genres');
     this.heroDescription = document.getElementById('hero-description');
+    this.heroFavorite = document.getElementById('hero-favorite');
+    this.backToTop = document.getElementById('back-to-top');
 
     this.setupSearchClear();
     this.setupMobileNav();
+    this.setupBackToTop();
+  }
+
+  setupBackToTop() {
+    const mainContent = document.getElementById('main-content');
+    mainContent.addEventListener('scroll', () => {
+        const isVisible = mainContent.scrollTop > 500;
+        this.backToTop.classList.toggle('opacity-100', isVisible);
+        this.backToTop.classList.toggle('pointer-events-auto', isVisible);
+    });
+    this.backToTop.onclick = () => {
+        mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+  }
+
+  setFavoriteStatus(isFavorite) {
+      if (this.heroFavorite) {
+          this.heroFavorite.classList.toggle('is-favorite', isFavorite);
+          this.heroFavorite.title = isFavorite ? 'Remove from Favorites' : 'Add to Favorites';
+      }
   }
 
   setupSearchClear() {
@@ -42,16 +64,23 @@ class UIController {
       if (!nav) return;
       
       const mainContent = document.getElementById('main-content');
+      let lastScrollTop = 0;
+
       mainContent.addEventListener('scroll', () => {
-          const isAtBottom = mainContent.scrollHeight - mainContent.scrollTop <= mainContent.clientHeight + 10;
-          if (isAtBottom) {
+          const scrollTop = mainContent.scrollTop;
+          const isAtBottom = mainContent.scrollHeight - scrollTop <= mainContent.clientHeight + 50;
+          
+          if (scrollTop < lastScrollTop || isAtBottom || scrollTop < 10) {
+              // Scrolling up or at bottom or at top
               nav.classList.remove('translate-y-full');
               nav.classList.add('translate-y-0');
           } else {
+              // Scrolling down
               nav.classList.add('translate-y-full');
               nav.classList.remove('translate-y-0');
           }
-      });
+          lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+      }, { passive: true });
   }
 
   renderMiniResults(results, onSelect) {
@@ -119,6 +148,7 @@ class UIController {
       const rawThumb = anime.thumbnail || anime.image;
       const imageUrl = rawThumb ? this.getProxyUrl(rawThumb) : `https://placehold.co/400x600/18181b/ffffff?text=${encodeURIComponent(anime.name)}`;
       const eps = anime.availableEpisodes ? (anime.availableEpisodes[mode] || 0) : 0;
+      const subtitle = anime.lastEpisode ? `Last: Ep ${anime.lastEpisode}` : (anime.genres?.[0] || 'Anime');
       card.innerHTML = `
         <div class="aspect-[2/3] relative overflow-hidden bg-surface rounded-2xl shadow-lg">
           <img src="${imageUrl}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
@@ -129,7 +159,7 @@ class UIController {
         </div>
         <div class="py-4 px-2">
           <h4 class="font-bold text-sm truncate group-hover:text-accent transition-colors mb-1 tracking-tight">${anime.name}</h4>
-          <span class="text-[10px] text-text-dim font-bold uppercase">${anime.genres?.[0] || 'Anime'}</span>
+          <span class="text-[10px] text-text-dim font-bold uppercase">${subtitle}</span>
         </div>
       `;
       card.onclick = () => onSelect(anime);
@@ -203,8 +233,41 @@ class UIController {
   }
 
   toggleMode(mode) {
-      this.modeBtn.textContent = mode.toUpperCase();
-      this.modeBtn.style.color = mode === 'dub' ? '#8b5cf6' : '#fff';
+      const isDub = mode === 'dub';
+      
+      // Animate the button itself
+      gsap.to(this.modeBtn, {
+          scale: 1.5,
+          color: isDub ? '#8b5cf6' : '#fff',
+          duration: 0.2,
+          yoyo: true,
+          repeat: 1,
+          ease: "back.out(2)",
+          onStart: () => {
+              this.modeBtn.textContent = mode.toUpperCase();
+          }
+      });
+
+      // Create a "cool" on-screen notification
+      const notify = document.createElement('div');
+      notify.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1000] pointer-events-none';
+      notify.innerHTML = `
+        <div class="flex flex-col items-center justify-center">
+            <div class="mode-flash text-6xl md:text-8xl font-black uppercase tracking-[0.5em] text-white/10 absolute italic">
+                ${mode}
+            </div>
+            <div class="relative px-8 py-4 bg-accent/20 backdrop-blur-2xl border border-accent/30 rounded-2xl shadow-[0_0_50px_rgba(139,92,246,0.3)]">
+                <span class="text-xs font-black uppercase tracking-[0.3em] text-accent">Switching to</span>
+                <h2 class="text-4xl font-black uppercase tracking-widest text-white">${mode}</h2>
+            </div>
+        </div>
+      `;
+      document.body.appendChild(notify);
+
+      const tl = gsap.timeline({ onComplete: () => notify.remove() });
+      tl.from(notify.querySelector('.relative'), { scale: 0.5, opacity: 0, duration: 0.4, ease: "expo.out" });
+      tl.from(notify.querySelector('.mode-flash'), { scale: 2, opacity: 0, duration: 0.6, ease: "power4.out" }, "-=0.2");
+      tl.to(notify, { y: -100, opacity: 0, duration: 0.5, delay: 0.8, ease: "power4.in" });
   }
 }
 export default UIController;
