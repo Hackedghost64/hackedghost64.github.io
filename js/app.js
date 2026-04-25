@@ -162,15 +162,21 @@ class AppController {
 
   async loadAnimeDetails(anime) {
     const episodes = await this.api.getEpisodes(anime.id, this.currentMode);
-    this.ui.renderEpisodes(episodes, (ep) => this.playEpisode(anime.id, ep));
+    const hist = this.history.find(h => h.id === anime.id);
+    const currentEpNumber = hist ? hist.episode : (episodes[0]?.number);
+    
+    this.ui.renderEpisodes(episodes, currentEpNumber, (ep) => this.playEpisode(anime.id, ep));
+    
     if (episodes.length > 0) {
-        const hist = this.history.find(h => h.id === anime.id);
         const startEp = hist ? episodes.find(e => e.number === hist.episode) || episodes[0] : episodes[0];
         this.playEpisode(anime.id, startEp);
     }
   }
 
   async playEpisode(id, episode) {
+    // Optimistic: Show loader instantly
+    this.player.showLoadingState(`Fetching Episode ${episode.number}...`);
+    
     const links = await this.api.getLinks(id, episode.number, this.currentMode);
     if (links.length > 0) {
         this.player.play({

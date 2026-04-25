@@ -282,18 +282,27 @@ class UIController {
     }});
   }
 
-  renderEpisodes(episodes, onSelect) {
+  renderEpisodes(episodes, activeEpNumber, onSelect) {
     this.episodesList.innerHTML = '';
     episodes.forEach(ep => {
       const btn = document.createElement('button');
-      btn.className = 'w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 active:bg-accent/20 active:border-accent transition-all text-left';
+      const isActive = ep.number === activeEpNumber;
+      btn.className = `episode-item-${ep.number} w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left ${isActive ? 'bg-accent/20 border-accent' : 'bg-white/5 border-white/5'}`;
       btn.innerHTML = `
-        <div class="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-[10px] font-black">${ep.number}</div>
+        <div class="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-[10px] font-black ${isActive ? 'text-accent' : ''}">${ep.number}</div>
         <div class="flex-1 overflow-hidden">
-          <div class="text-[10px] font-black truncate uppercase">${ep.title || `Episode ${ep.number}`}</div>
+          <div class="text-[10px] font-black truncate uppercase ${isActive ? 'text-white' : 'text-white/70'}">${ep.title || `Episode ${ep.number}`}</div>
         </div>
       `;
-      btn.onclick = () => onSelect(ep);
+      btn.onclick = () => {
+          // Optimistic UI: Update all buttons immediately
+          document.querySelectorAll('[class*="episode-item-"]').forEach(b => {
+              b.classList.remove('bg-accent/20', 'border-accent');
+              b.classList.add('bg-white/5', 'border-white/5');
+          });
+          btn.classList.add('bg-accent/20', 'border-accent');
+          onSelect(ep);
+      };
       this.episodesList.appendChild(btn);
     });
   }

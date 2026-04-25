@@ -89,6 +89,21 @@ class PlayerManager {
         if (btn) btn.textContent = mode.toUpperCase();
     }
 
+    showLoadingState(message) {
+        if (!this.videoElement) {
+            this.mountNativePlayer('', false);
+        }
+        const loader = document.getElementById('player-buffering');
+        if (loader) {
+            loader.classList.remove('hidden');
+            const msgEl = loader.querySelector('.loading-msg') || document.createElement('div');
+            msgEl.className = 'loading-msg absolute top-2/3 text-[10px] font-black uppercase tracking-widest text-accent animate-pulse';
+            msgEl.textContent = message;
+            if (!loader.querySelector('.loading-msg')) loader.appendChild(msgEl);
+        }
+        if (this.videoElement) this.videoElement.src = ''; 
+    }
+
     mountNativePlayer(url, isHls) {
         const video = document.createElement('video');
         video.className = 'w-full h-full outline-none'; video.controls = false;
