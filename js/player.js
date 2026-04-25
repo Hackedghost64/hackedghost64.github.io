@@ -104,14 +104,18 @@ class PlayerManager {
     }
 
     injectModernControls(options) {
+        const isMobile = window.innerWidth < 1024;
         const overlay = document.createElement('div');
-        overlay.className = 'absolute inset-0 flex flex-col justify-between z-50 bg-gradient-to-t from-black/80 via-transparent to-black/40 opacity-100 transition-opacity duration-300';
+        overlay.className = 'absolute inset-0 flex flex-col justify-between z-50 bg-gradient-to-t from-black/90 via-transparent to-black/40 opacity-100 transition-opacity duration-300';
         this.controlsOverlay = overlay;
+        
         const topBar = document.createElement('div');
-        topBar.className = 'p-6 flex justify-between items-start';
-        topBar.innerHTML = `<div class="glass px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-accent animate-pulse"></span> HD STREAM</div>`;
+        topBar.className = 'p-4 md:p-6 flex justify-between items-start';
+        topBar.innerHTML = `<div class="glass px-3 py-1.5 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-accent animate-pulse"></span> ${isMobile ? 'LIVE' : 'HD STREAM'}</div>`;
+        
         const bottomBar = document.createElement('div');
-        bottomBar.className = 'p-2 md:p-6 flex flex-col gap-2 md:gap-4';
+        bottomBar.className = 'p-3 md:p-6 flex flex-col gap-3 md:gap-4';
+        
         const progressContainer = document.createElement('div');
         progressContainer.className = 'relative w-full h-1.5 group/seeker cursor-pointer';
         const progressBg = document.createElement('div');
@@ -123,55 +127,57 @@ class PlayerManager {
         const seeker = document.createElement('input');
         seeker.type = 'range'; seeker.className = 'absolute inset-0 w-full opacity-0 cursor-pointer z-10'; seeker.id = 'player-seeker';
         progressContainer.appendChild(progressBg); progressContainer.appendChild(seeker);
+        
         const mainControls = document.createElement('div');
-        mainControls.className = 'flex justify-between items-center';
+        mainControls.className = 'flex justify-between items-center gap-2';
+        
         const leftGroup = document.createElement('div');
-        leftGroup.className = 'flex items-center gap-2';
+        leftGroup.className = 'flex items-center gap-1 md:gap-3';
         leftGroup.appendChild(this.createIconButton(this.icons.play, () => this.togglePlay(), 'Play/Pause', 'player-play-btn'));
-        if (options.onPrev) leftGroup.appendChild(this.createIconButton(this.icons.prev, options.onPrev, 'Prev'));
-        if (options.onNext) leftGroup.appendChild(this.createIconButton(this.icons.next, options.onNext, 'Next'));
+        
         const timeDisplay = document.createElement('div');
-        timeDisplay.className = 'text-[10px] md:text-xs font-bold font-mono tracking-tighter opacity-80 ml-2';
+        timeDisplay.className = 'text-[9px] md:text-xs font-black font-mono tracking-tighter opacity-80 ml-1';
         timeDisplay.id = 'player-time'; timeDisplay.textContent = '00:00 / 00:00';
         leftGroup.appendChild(timeDisplay);
+        
         const rightGroup = document.createElement('div');
-        rightGroup.className = 'flex items-center gap-1.5 md:gap-4';
+        rightGroup.className = 'flex items-center gap-1 md:gap-4';
 
-        const skipIntroBtn = document.createElement('button');
-        skipIntroBtn.id = 'skip-intro-btn';
-        skipIntroBtn.className = 'hidden md:block px-3 py-1.5 rounded-lg bg-white/10 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all opacity-0 pointer-events-none';
-        skipIntroBtn.textContent = 'Skip Intro';
-        skipIntroBtn.onclick = () => { this.videoElement.currentTime += 85; this.showSkipIndicator('Skipped Intro', 'center'); };
-        rightGroup.appendChild(skipIntroBtn);
+        if (!isMobile) {
+            const skipIntroBtn = document.createElement('button');
+            skipIntroBtn.id = 'skip-intro-btn';
+            skipIntroBtn.className = 'px-3 py-1.5 rounded-lg bg-white/10 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all opacity-0 pointer-events-none';
+            skipIntroBtn.textContent = 'Skip Intro';
+            skipIntroBtn.onclick = () => { this.videoElement.currentTime += 85; };
+            rightGroup.appendChild(skipIntroBtn);
+        }
 
         const modeBtn = document.createElement('button');
         modeBtn.id = 'player-mode-btn';
-        modeBtn.className = 'px-3 py-1.5 rounded-lg bg-accent/20 text-accent border border-accent/20 text-[10px] font-black uppercase tracking-widest';
+        modeBtn.className = 'px-2 py-1.5 md:px-3 rounded-lg bg-accent/20 text-accent border border-accent/20 text-[9px] md:text-[10px] font-black uppercase tracking-widest';
         modeBtn.textContent = options.currentMode.toUpperCase();
         modeBtn.onclick = () => { options.onModeSwitch(); };
         rightGroup.appendChild(modeBtn);
 
-        const volumeGroup = document.createElement('div');
-        volumeGroup.className = 'hidden md:flex items-center gap-2 group/volume';
-        volumeGroup.appendChild(this.createIconButton(this.icons.volumeHigh, () => this.toggleMute(), 'Mute', 'player-vol-btn'));
-        const volSlider = document.createElement('input');
-        volSlider.type = 'range'; volSlider.className = 'w-0 group-hover/volume:w-20 transition-all duration-300 player-slider';
-        volSlider.min = '0'; volSlider.max = '1'; volSlider.step = '0.1'; volSlider.value = this.volume.toString();
-        volumeGroup.appendChild(volSlider); rightGroup.appendChild(volumeGroup);
         const speedBtn = document.createElement('button');
-        speedBtn.className = 'text-[10px] font-black w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all';
+        speedBtn.className = 'text-[9px] md:text-[10px] font-black w-8 h-8 md:w-10 md:h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all';
         speedBtn.textContent = this.playbackRate + 'X'; speedBtn.onclick = () => this.cycleSpeed(speedBtn);
         rightGroup.appendChild(speedBtn);
-        rightGroup.appendChild(this.createIconButton(this.icons.share, () => this.handleShare(), 'Share'));
-        rightGroup.appendChild(this.createIconButton(this.icons.download, () => this.handleDownload(), 'Download'));
-        rightGroup.appendChild(this.createIconButton(this.icons.theater, () => this.toggleTheaterMode(), 'Theater'));
+
+        if (!isMobile) {
+            rightGroup.appendChild(this.createIconButton(this.icons.share, () => this.handleShare(), 'Share'));
+            rightGroup.appendChild(this.createIconButton(this.icons.download, () => this.handleDownload(), 'Download'));
+            rightGroup.appendChild(this.createIconButton(this.icons.theater, () => this.toggleTheaterMode(), 'Theater'));
+        }
+        
         rightGroup.appendChild(this.createIconButton(this.icons.settings, () => this.toggleSettings(), 'Settings'));
         rightGroup.appendChild(this.createIconButton(this.icons.fullscreen, () => this.toggleFullscreen(), 'Fullscreen'));
+        
         mainControls.appendChild(leftGroup); mainControls.appendChild(rightGroup);
         bottomBar.appendChild(progressContainer); bottomBar.appendChild(mainControls);
         overlay.appendChild(topBar); overlay.appendChild(bottomBar);
         this.container.appendChild(overlay);
-        this.setupControlListeners(seeker, volSlider);
+        this.setupControlListeners(seeker, null); // Vol slider removed for mobile space
     }
 
     setupControlListeners(seeker, volSlider) {

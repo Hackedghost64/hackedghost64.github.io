@@ -1,292 +1,265 @@
 class UIController {
   constructor(getProxyUrl) {
     this.getProxyUrl = getProxyUrl;
-    this.grid = document.getElementById('content-grid');
-    this.miniSearch = document.getElementById('search-results-mini');
+    this.isMobile = window.innerWidth < 1024;
+    this.appContainer = document.getElementById('app-container');
     this.playerOverlay = document.getElementById('player-overlay');
     this.episodesList = document.getElementById('episodes-list');
-    this.episodesCount = document.getElementById('current-ep-count');
     this.playerTitle = document.getElementById('player-title');
+    
+    this.initLayout();
+  }
+
+  initLayout() {
+    if (this.isMobile) {
+      this.renderMobileLayout();
+    } else {
+      this.renderDesktopLayout();
+    }
+    this.bindCommonElements();
+  }
+
+  renderMobileLayout() {
+    this.appContainer.innerHTML = `
+      <header class="h-12 flex items-center justify-between px-4 z-50 bg-bg/80 backdrop-blur-xl border-b border-white/5">
+        <div class="flex items-center gap-2 overflow-hidden">
+           <img src="logo.png" class="w-6 h-6 shrink-0" />
+           <span class="text-[10px] font-black uppercase tracking-[0.2em] truncate">AnimeVerse</span>
+        </div>
+        <div class="flex items-center gap-2">
+           <button id="search-trigger" class="p-2 shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+           <div class="w-6 h-6 rounded-full bg-accent/20 border border-accent/40 shrink-0"></div>
+        </div>
+      </header>
+
+      <div id="main-content" class="flex-1 overflow-y-auto pb-24 scroll-smooth">
+        <div id="hero-container" class="relative h-[55vh] w-full overflow-hidden">
+           <div id="hero-bg" class="absolute inset-0 bg-gradient-to-t from-bg via-bg/20 to-transparent z-10"></div>
+           <img id="hero-img" class="w-full h-full object-cover" src="" />
+           <div class="absolute bottom-6 inset-x-0 z-20 px-4 flex flex-col items-center text-center">
+              <h2 id="hero-title" class="text-xl font-black uppercase tracking-tighter mb-2 leading-none line-clamp-2"></h2>
+              <div id="hero-genres" class="flex flex-wrap justify-center gap-1 text-[8px] font-bold text-text-dim mb-4 uppercase"></div>
+              <div class="flex items-center gap-2 w-full max-w-[260px]">
+                 <button id="hero-favorite" class="flex-1 py-2 bg-white/5 border border-white/10 rounded-lg font-black text-[9px] uppercase tracking-widest active:scale-95 transition-all">Fav</button>
+                 <button id="hero-play" class="flex-[2] py-2.5 bg-accent text-white rounded-lg font-black text-[10px] uppercase tracking-[0.1em] shadow-lg shadow-accent/40 active:scale-95 transition-all">Watch Now</button>
+              </div>
+           </div>
+        </div>
+
+        <div class="px-4 py-6 space-y-8">
+           <section>
+              <div class="flex items-center justify-between mb-4 px-1">
+                 <h3 class="text-[9px] font-black uppercase tracking-[0.2em] text-white/40">Trending</h3>
+                 <span class="text-[8px] font-bold text-accent uppercase">All</span>
+              </div>
+              <div id="content-grid" class="flex gap-3 overflow-x-auto pb-4 scroll-hide px-1"></div>
+           </section>
+        </div>
+      </div>
+
+      <nav class="fixed bottom-4 inset-x-4 h-14 bg-surface/90 backdrop-blur-2xl border border-white/10 rounded-2xl flex items-center justify-around z-50 shadow-2xl overflow-hidden">
+         <button id="mobile-nav-home" class="nav-btn active flex flex-col items-center gap-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="text-[7px] font-black uppercase">Home</span></button>
+         <button id="mobile-nav-discover" class="nav-btn flex flex-col items-center gap-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.3-6.4 2.1 2.1-6.4z"/></svg><span class="text-[7px] font-black uppercase">Explore</span></button>
+         <button id="mobile-nav-library" class="nav-btn flex flex-col items-center gap-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="text-[7px] font-black uppercase">Profile</span></button>
+      </nav>
+
+      <div id="search-overlay" class="fixed inset-0 z-[100] bg-bg hidden flex-col">
+         <div class="h-14 flex items-center gap-4 px-4 border-b border-border">
+            <button id="search-close" class="p-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m15 18-6-6 6-6"/></svg></button>
+            <input type="text" id="search-input" placeholder="Search anime..." class="flex-1 bg-transparent outline-none font-bold text-xs" />
+         </div>
+         <div id="search-results-mini" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+      </div>
+    `;
+  }
+
+  renderDesktopLayout() {
+    this.appContainer.innerHTML = `
+      <div class="flex h-screen w-full">
+        <aside class="w-72 bg-sidebar border-r border-border p-10 flex flex-col gap-12 shrink-0">
+          <div class="flex items-center gap-4">
+            <img src="logo.png" class="w-10 h-10" />
+            <h1 class="text-xl font-black uppercase tracking-tighter">AnimeVerse</h1>
+          </div>
+          <nav class="flex flex-col gap-3">
+            <div id="nav-home" class="nav-item px-6 py-3 bg-surface rounded-2xl text-white font-bold text-sm cursor-pointer active border-l-4 border-accent">Home</div>
+            <div id="nav-discover" class="nav-item px-6 py-3 hover:bg-surface/50 rounded-2xl text-text-dim hover:text-white font-bold text-sm cursor-pointer transition-all">Discover</div>
+            <div id="nav-library" class="nav-item px-6 py-3 hover:bg-surface/50 rounded-2xl text-text-dim hover:text-white font-bold text-sm cursor-pointer transition-all">Library</div>
+            <div id="nav-history" class="nav-item px-6 py-3 hover:bg-surface/50 rounded-2xl text-text-dim hover:text-white font-bold text-sm cursor-pointer transition-all">History</div>
+          </nav>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-hidden">
+          <header class="h-24 px-10 flex items-center justify-between shrink-0">
+            <div class="relative w-full max-w-xl">
+              <input type="text" id="search-input" placeholder="Search anime, genres, etc..." class="w-full bg-surface border border-border rounded-2xl px-6 py-3.5 outline-none focus:border-accent transition-all text-sm" />
+              <div id="search-results-mini" class="absolute top-full left-0 right-0 mt-4 bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden hidden z-50 max-h-[500px] overflow-y-auto"></div>
+            </div>
+            <button id="mode-toggle" class="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest hover:text-white transition-colors">SUB</button>
+          </header>
+
+          <div id="main-content" class="flex-1 overflow-y-auto p-10 pt-0">
+            <section id="hero-section" class="mb-12">
+               <div class="h-80 rounded-[40px] relative overflow-hidden flex items-end p-12 hero-gradient border border-white/5">
+                  <div id="hero-bg" class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                  <img id="hero-img" src="" class="absolute inset-0 w-full h-full object-cover -z-10" />
+                  <div class="relative z-10 max-w-2xl">
+                    <h2 id="hero-title" class="text-6xl font-black mb-6 leading-none tracking-tighter uppercase"></h2>
+                    <div id="hero-genres" class="flex gap-4 text-xs font-bold text-white/70 mb-8 uppercase tracking-widest"></div>
+                    <div class="flex items-center gap-6">
+                      <button id="hero-play" class="bg-accent text-white px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] hover:scale-105 transition-all shadow-xl shadow-accent/20 text-sm">Watch Now</button>
+                      <button id="hero-favorite" class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all border border-white/10">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                      </button>
+                    </div>
+                  </div>
+               </div>
+            </section>
+            
+            <div class="flex items-center justify-between mb-8">
+              <h2 class="text-2xl font-black uppercase tracking-widest">Recent Updates</h2>
+            </div>
+            <div id="content-grid" class="grid grid-cols-5 gap-8"></div>
+          </div>
+        </main>
+      </div>
+    `;
+  }
+
+  bindCommonElements() {
+    this.grid = document.getElementById('content-grid');
+    this.miniSearch = document.getElementById('search-results-mini');
     this.searchInput = document.getElementById('search-input');
-    this.modeBtn = document.getElementById('mode-toggle');
     this.heroImg = document.getElementById('hero-img');
     this.heroTitle = document.getElementById('hero-title');
     this.heroGenres = document.getElementById('hero-genres');
-    this.heroDescription = document.getElementById('hero-description');
+    this.heroPlay = document.getElementById('hero-play');
     this.heroFavorite = document.getElementById('hero-favorite');
-    this.backToTop = document.getElementById('back-to-top');
+    this.modeBtn = document.getElementById('mode-toggle');
 
-    this.setupSearchClear();
-    this.setupMobileNav();
-    this.setupBackToTop();
-  }
-
-  setupBackToTop() {
-    const mainContent = document.getElementById('main-content');
-    mainContent.addEventListener('scroll', () => {
-        const isVisible = mainContent.scrollTop > 500;
-        this.backToTop.classList.toggle('opacity-100', isVisible);
-        this.backToTop.classList.toggle('pointer-events-auto', isVisible);
-    });
-    this.backToTop.onclick = () => {
-        mainContent.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-  }
-
-  setFavoriteStatus(isFavorite) {
-      if (this.heroFavorite) {
-          this.heroFavorite.classList.toggle('is-favorite', isFavorite);
-          this.heroFavorite.title = isFavorite ? 'Remove from Favorites' : 'Add to Favorites';
-      }
-  }
-
-  setupSearchClear() {
-    const clearBtn = document.createElement('button');
-    clearBtn.id = 'search-clear';
-    clearBtn.className = 'absolute right-3 top-1/2 -translate-y-1/2 text-text-dim opacity-0 pointer-events-none transition-all hover:text-white z-10';
-    clearBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
-    this.searchInput.parentElement.appendChild(clearBtn);
-    this.searchInput.addEventListener('input', () => {
-        const hasValue = this.searchInput.value.length > 0;
-        clearBtn.classList.toggle('opacity-100', hasValue);
-        clearBtn.classList.toggle('pointer-events-auto', hasValue);
-    });
-    clearBtn.onclick = () => {
-        this.searchInput.value = '';
-        this.searchInput.focus();
-        clearBtn.classList.remove('opacity-100', 'pointer-events-auto');
-        this.miniSearch.classList.add('hidden');
-    };
-  }
-
-  setupMobileNav() {
-      const nav = document.querySelector('nav.lg\\:hidden');
-      if (!nav) return;
-      
-      const mainContent = document.getElementById('main-content');
-      let lastScrollTop = 0;
-
-      mainContent.addEventListener('scroll', () => {
-          const scrollTop = mainContent.scrollTop;
-          const isAtBottom = mainContent.scrollHeight - scrollTop <= mainContent.clientHeight + 50;
-          
-          if (scrollTop < lastScrollTop || isAtBottom || scrollTop < 10) {
-              // Scrolling up or at bottom or at top
-              nav.classList.remove('translate-y-full');
-              nav.classList.add('translate-y-0');
-          } else {
-              // Scrolling down
-              nav.classList.add('translate-y-full');
-              nav.classList.remove('translate-y-0');
-          }
-          lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-      }, { passive: true });
-  }
-
-  renderMiniResults(results, onSelect) {
-    if (results.length === 0) {
-      this.miniSearch.classList.add('hidden');
-      return;
+    if (this.isMobile) {
+        const trigger = document.getElementById('search-trigger');
+        const overlay = document.getElementById('search-overlay');
+        const close = document.getElementById('search-close');
+        
+        trigger.onclick = () => {
+            overlay.classList.remove('hidden');
+            this.searchInput.focus();
+        };
+        close.onclick = () => overlay.classList.add('hidden');
     }
-    this.miniSearch.innerHTML = '';
-    this.miniSearch.classList.remove('hidden');
-    results.slice(0, 8).forEach(anime => {
-      const item = document.createElement('div');
-      item.className = 'flex items-center gap-4 p-3 hover:bg-white/5 cursor-pointer transition-colors border-b border-border last:border-0';
-      const rawThumb = anime.thumbnail || anime.image;
-      const thumbUrl = rawThumb ? this.getProxyUrl(rawThumb) : `https://placehold.co/100x150/18181b/ffffff?text=Anime`;
-      item.innerHTML = `
-        <img src="${thumbUrl}" class="w-10 h-14 object-cover rounded-lg shadow-sm" />
-        <div class="flex-1 overflow-hidden">
-          <h5 class="text-sm font-bold truncate mb-0.5">${anime.name}</h5>
-          <span class="text-[10px] text-text-dim font-bold uppercase tracking-wider">Episodes Available</span>
-        </div>
-      `;
-      item.onclick = () => {
-        onSelect(anime);
-        this.miniSearch.classList.add('hidden');
-        this.searchInput.value = '';
-        document.getElementById('search-clear').classList.remove('opacity-100', 'pointer-events-auto');
-      };
-      this.miniSearch.appendChild(item);
-    });
-  }
-
-  setLoading(isLoading) {
-    if (isLoading) {
-      this.grid.innerHTML = '';
-      for (let i = 0; i < 10; i++) {
-        const skeleton = document.createElement('div');
-        skeleton.className = 'anime-card animate-pulse';
-        skeleton.innerHTML = `
-          <div class="aspect-[2/3] skeleton rounded-2xl"></div>
-          <div class="py-4 px-2 space-y-2">
-            <div class="h-4 w-3/4 skeleton rounded"></div>
-            <div class="h-3 w-1/2 skeleton rounded"></div>
-          </div>
-        `;
-        this.grid.appendChild(skeleton);
-      }
-    }
-  }
-
-  renderEmpty(message = "Nothing found here yet") {
-      this.grid.innerHTML = `
-        <div class="col-span-full flex flex-col items-center justify-center py-32 opacity-30">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-4"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-          <p class="text-sm font-bold uppercase tracking-widest">${message}</p>
-        </div>
-      `;
   }
 
   renderResults(results, mode, onSelect) {
     this.grid.innerHTML = '';
     if (results.length === 0) { this.renderEmpty(); return; }
-    results.forEach((anime, index) => {
+    
+    results.forEach(anime => {
       const card = document.createElement('div');
-      card.className = 'anime-card group cursor-pointer opacity-0';
+      card.className = this.isMobile ? 'flex-shrink-0 w-32 group' : 'anime-card group cursor-pointer';
+      
       const rawThumb = anime.thumbnail || anime.image;
-      const imageUrl = rawThumb ? this.getProxyUrl(rawThumb) : `https://placehold.co/400x600/18181b/ffffff?text=${encodeURIComponent(anime.name)}`;
-      const eps = anime.availableEpisodes ? (anime.availableEpisodes[mode] || 0) : 0;
-      const subtitle = anime.lastEpisode ? `Last: Ep ${anime.lastEpisode}` : (anime.genres?.[0] || 'Anime');
+      const imageUrl = rawThumb ? this.getProxyUrl(rawThumb) : '';
+      
       card.innerHTML = `
-        <div class="aspect-[2/3] relative overflow-hidden bg-surface rounded-2xl shadow-lg">
-          <img src="${imageUrl}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent opacity-60"></div>
-          <div class="absolute bottom-3 left-3 flex gap-2">
-             <span class="bg-accent/90 backdrop-blur-md text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-wider shadow-lg">${eps} ${mode.toUpperCase()}</span>
+        <div class="aspect-[2/3] relative overflow-hidden bg-surface rounded-xl shadow-xl border border-white/5">
+          <img src="${imageUrl}" class="w-full h-full object-cover group-active:scale-95 transition-transform duration-500" loading="lazy" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+          <div class="absolute bottom-2 left-2">
+             <span class="bg-accent/90 text-[7px] font-black px-1.5 py-0.5 rounded uppercase">${mode}</span>
           </div>
         </div>
-        <div class="py-4 px-2">
-          <h4 class="font-bold text-sm truncate group-hover:text-accent transition-colors mb-1 tracking-tight">${anime.name}</h4>
-          <span class="text-[10px] text-text-dim font-bold uppercase">${subtitle}</span>
+        <div class="mt-2">
+          <h4 class="font-bold text-[9px] md:text-sm truncate uppercase tracking-tight">${anime.name}</h4>
+          <span class="text-[7px] md:text-[10px] text-text-dim font-bold uppercase">${anime.genres?.[0] || 'Anime'}</span>
         </div>
       `;
       card.onclick = () => onSelect(anime);
       this.grid.appendChild(card);
     });
-    gsap.to(".anime-card", { opacity: 1, y: 0, duration: 0.6, stagger: 0.03, ease: "power2.out", startAt: { y: 20 } });
+    
+    if (!this.isMobile) {
+        gsap.from(".anime-card", { opacity: 0, y: 20, duration: 0.6, stagger: 0.05, ease: "power2.out" });
+    }
   }
 
-  setActiveTab(tabId) {
-      const navItems = document.querySelectorAll('.nav-item, .mobile-nav-item');
-      navItems.forEach(item => {
-          if (item.id === tabId) item.classList.add('active');
-          else item.classList.remove('active');
-      });
-  }
-
-  renderEpisodes(episodes, onSelect) {
-    this.episodesList.innerHTML = '';
-    this.episodesCount.textContent = `${episodes.length} ITEMS`;
-    episodes.forEach((ep) => {
-      const btn = document.createElement('button');
-      btn.className = 'episode-btn w-full flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-left group';
-      btn.innerHTML = `
-        <div class="w-12 h-12 rounded-xl bg-surface border border-white/10 flex items-center justify-center text-sm font-black group-hover:text-accent group-hover:border-accent transition-all">
-          ${ep.number}
-        </div>
+  renderMiniResults(results, onSelect) {
+    this.miniSearch.innerHTML = '';
+    this.miniSearch.classList.remove('hidden');
+    
+    results.slice(0, 10).forEach(anime => {
+      const item = document.createElement('div');
+      item.className = 'flex items-center gap-3 p-3 hover:bg-white/5 cursor-pointer border-b border-white/5 active:bg-white/10';
+      item.innerHTML = `
+        <img src="${this.getProxyUrl(anime.thumbnail || anime.image)}" class="w-8 h-12 object-cover rounded-lg" />
         <div class="flex-1 overflow-hidden">
-          <div class="text-sm font-bold truncate text-white/90 group-hover:text-white">${ep.title || `Episode ${ep.number}`}</div>
-          <div class="text-[9px] text-text-dim font-black uppercase tracking-widest mt-1">Ready to Stream</div>
+          <h5 class="text-[10px] font-black truncate uppercase">${anime.name}</h5>
+          <span class="text-[7px] text-text-dim font-black uppercase">Click to view</span>
         </div>
       `;
-      btn.onclick = () => {
-        const actives = this.episodesList.querySelectorAll('.episode-btn.active');
-        actives.forEach(a => a.classList.remove('active'));
-        btn.classList.add('active');
-        onSelect(ep);
+      item.onclick = () => {
+        onSelect(anime);
+        if (this.isMobile) document.getElementById('search-overlay').classList.add('hidden');
+        else this.miniSearch.classList.add('hidden');
       };
-      this.episodesList.appendChild(btn);
+      this.miniSearch.appendChild(item);
     });
-    gsap.fromTo(this.episodesList.children, { opacity: 0, x: 20 }, { opacity: 1, x: 0, stagger: 0.02, duration: 0.5, ease: "power2.out", clearProps: "all" });
+  }
+
+  updateHero(anime) {
+    if (!anime) return;
+    this.heroImg.src = this.getProxyUrl(anime.thumbnail || anime.image);
+    this.heroTitle.textContent = anime.name;
+    this.heroGenres.innerHTML = anime.genres?.slice(0, 3).map(g => `<span>${g}</span>`).join(this.isMobile ? ' ' : ' • ') || '';
+    
+    gsap.from([this.heroTitle, this.heroGenres], { y: 15, opacity: 0, stagger: 0.1, duration: 0.6, ease: "power3.out" });
   }
 
   showPlayer(title) {
     this.playerOverlay.classList.remove('hidden');
     this.playerOverlay.style.display = 'flex';
     this.playerTitle.textContent = title;
-    document.title = `Watching: ${title}`;
     document.body.style.overflow = 'hidden';
-    gsap.fromTo(this.playerOverlay, { opacity: 0, scale: 1.1, filter: "blur(20px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.5, ease: "power4.out" });
+    gsap.fromTo(this.playerOverlay, { y: '100%' }, { y: '0%', duration: 0.6, ease: "expo.out" });
   }
 
   hidePlayer() {
-    gsap.to(this.playerOverlay, { opacity: 0, scale: 1.05, duration: 0.3, ease: "power3.in", onComplete: () => {
+    gsap.to(this.playerOverlay, { y: '100%', duration: 0.4, ease: "expo.in", onComplete: () => {
         this.playerOverlay.classList.add('hidden');
-        this.playerOverlay.style.display = 'none'; // Force hide
-        document.title = 'AnimeVerse';
+        this.playerOverlay.style.display = 'none';
         document.body.style.overflow = 'auto';
-        document.body.classList.remove('locked');
     }});
   }
 
-  updateHero(anime) {
-      if (!anime) return;
-      const rawThumb = anime.thumbnail || anime.image;
-      const imageUrl = rawThumb ? this.getProxyUrl(rawThumb) : '';
-      gsap.to("#hero-section", { opacity: 0, duration: 0.3, onComplete: () => {
-          this.heroImg.src = imageUrl;
-          this.heroTitle.textContent = anime.name;
-          this.heroDescription.textContent = anime.description || '';
-          this.heroGenres.innerHTML = anime.genres?.slice(0, 3).map(g => `<span>${g}</span>`).join('•') || '';
-          gsap.to("#hero-section", { opacity: 1, duration: 0.5 });
-      }});
-  }
-
-  toggleMode(mode) {
-      const isDub = mode === 'dub';
-      
-      // Animate the button itself
-      gsap.to(this.modeBtn, {
-          scale: 1.5,
-          color: isDub ? '#8b5cf6' : '#fff',
-          duration: 0.2,
-          yoyo: true,
-          repeat: 1,
-          ease: "back.out(2)",
-          onStart: () => {
-              this.modeBtn.textContent = mode.toUpperCase();
-          }
-      });
-
-      // Cool background ripple
-      const ripple = document.createElement('div');
-      ripple.className = `fixed inset-0 z-0 pointer-events-none opacity-20 ${isDub ? 'bg-accent' : 'bg-white'}`;
-      document.body.appendChild(ripple);
-      gsap.fromTo(ripple, { scale: 0, opacity: 0.5 }, { scale: 4, opacity: 0, duration: 1, ease: "expo.out", onComplete: () => ripple.remove() });
-
-      // Animate existing cards to show they changed
-      gsap.to(".anime-card", {
-          scale: 0.95,
-          opacity: 0.5,
-          duration: 0.2,
-          yoyo: true,
-          repeat: 1,
-          stagger: { amount: 0.3, from: "center" },
-          ease: "power2.inOut"
-      });
-
-      // Create a "cool" on-screen notification
-      const notify = document.createElement('div');
-      notify.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1000] pointer-events-none';
-      notify.innerHTML = `
-        <div class="flex flex-col items-center justify-center">
-            <div class="mode-flash text-6xl md:text-8xl font-black uppercase tracking-[0.5em] text-white/10 absolute italic">
-                ${mode}
-            </div>
-            <div class="relative px-8 py-4 bg-accent/20 backdrop-blur-2xl border border-accent/30 rounded-2xl shadow-[0_0_50px_rgba(139,92,246,0.3)]">
-                <span class="text-xs font-black uppercase tracking-[0.3em] text-accent">Switching to</span>
-                <h2 class="text-4xl font-black uppercase tracking-widest text-white">${mode}</h2>
-            </div>
+  renderEpisodes(episodes, onSelect) {
+    this.episodesList.innerHTML = '';
+    episodes.forEach(ep => {
+      const btn = document.createElement('button');
+      btn.className = 'w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 active:bg-accent/20 active:border-accent transition-all text-left';
+      btn.innerHTML = `
+        <div class="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-[10px] font-black">${ep.number}</div>
+        <div class="flex-1 overflow-hidden">
+          <div class="text-[10px] font-black truncate uppercase">${ep.title || `Episode ${ep.number}`}</div>
         </div>
       `;
-      document.body.appendChild(notify);
+      btn.onclick = () => onSelect(ep);
+      this.episodesList.appendChild(btn);
+    });
+  }
 
-      const tl = gsap.timeline({ onComplete: () => notify.remove() });
-      tl.from(notify.querySelector('.relative'), { scale: 0.5, opacity: 0, duration: 0.4, ease: "expo.out" });
-      tl.from(notify.querySelector('.mode-flash'), { scale: 2, opacity: 0, duration: 0.6, ease: "power4.out" }, "-=0.2");
-      tl.to(notify, { y: -100, opacity: 0, duration: 0.5, delay: 0.8, ease: "power4.in" });
+  setActiveTab(tabId) {
+    document.querySelectorAll('.nav-item, .nav-btn').forEach(el => {
+        el.classList.remove('active', 'bg-surface', 'border-accent', 'text-accent');
+        if (el.id === tabId) {
+            el.classList.add('active');
+            if (!this.isMobile) el.classList.add('bg-surface', 'border-l-4', 'border-accent');
+            else el.classList.add('text-accent');
+        }
+    });
+  }
+
+  renderEmpty(message = "Nothing found") {
+      this.grid.innerHTML = `<div class="w-full py-20 text-center text-[10px] font-black uppercase tracking-widest opacity-20">${message}</div>`;
   }
 }
 export default UIController;
