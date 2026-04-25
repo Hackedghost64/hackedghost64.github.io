@@ -1,0 +1,17 @@
+{
+  "name": "AnimeVerse",
+  "short_name": "AnimeVerse",
+  "description": "Premium Anime Streaming Experience",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#8b5cf6",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

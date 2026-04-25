@@ -5,6 +5,9 @@ import AppController from './app.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     try {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').catch(() => {});
+        }
         const api = new AnimeAPI();
         const ui = new UIController(api.getProxyImageUrl.bind(api));
         const player = new PlayerManager('video-container');
